@@ -10,7 +10,7 @@ type Slide = { title: string; image: string; href: string };
 // The scene follows olha's: camera at z 1.5 (fov 45), a #101010 fog that clears over 200% of scroll, the
 // group rotating from 1.5 rad to 0, a 0.813 x 0.47 screen, mouse parallax, and a drag or swipe to change
 // slide. Her scene also loads a 3D model that is not part of the files, so a plain monitor stands in.
-function init(host: HTMLElement) {
+function init(host: HTMLElement): Promise<void> {
   const slides: Slide[] = JSON.parse(host.dataset.slides ?? "[]");
   const canvas = host.querySelector<HTMLCanvasElement>(".projects-gl");
   const stage = host.querySelector<HTMLElement>(".projects-stage");
@@ -18,7 +18,7 @@ function init(host: HTMLElement) {
   const swipe = host.querySelector<HTMLElement>(".projects-canvas__swipe");
   const link = host.querySelector<HTMLAnchorElement>(".link");
   const section = host.closest<HTMLElement>(".projects");
-  if (!slides.length || !canvas || !stage || !section) return;
+  if (!slides.length || !canvas || !stage || !section) return Promise.resolve();
 
   const desktop = () => window.innerWidth > 1100;
   const BACKGROUND = "#101010";
@@ -78,17 +78,28 @@ function init(host: HTMLElement) {
   // The slides: one plane per project, all stacked, the current one at full opacity.
   const loader = new THREE.TextureLoader();
   loader.setCrossOrigin("anonymous");
+  const textures: Promise<void>[] = [];
   const planes = slides.map((slide, index) => {
     const material = new THREE.MeshBasicMaterial({ transparent: true, opacity: index === 0 ? 1 : 0 });
     const plane = new THREE.Mesh(new THREE.PlaneGeometry(0.813, 0.47), material);
     plane.position.set(0.004, 0.001, -0.72);
     group.add(plane);
-    loader.load(slide.image, (texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      material.map = texture;
-      material.needsUpdate = true;
-      dirty = true;
-    });
+    textures.push(
+      new Promise<void>((resolve) =>
+        loader.load(
+          slide.image,
+          (texture) => {
+            texture.colorSpace = THREE.SRGBColorSpace;
+            material.map = texture;
+            material.needsUpdate = true;
+            dirty = true;
+            resolve();
+          },
+          undefined,
+          () => resolve(),
+        ),
+      ),
+    );
     return plane;
   });
 
@@ -244,7 +255,9 @@ function init(host: HTMLElement) {
   });
 
   resize();
+  // Ready once every slide image is loaded and the first frame has been drawn.
+  return Promise.all(textures).then(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
 }
 
 const host = document.querySelector<HTMLElement>(".projects-canvas");
-if (host) init(host);
+export const ready: Promise<void> = host ? init(host) : Promise.resolve();

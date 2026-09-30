@@ -229,3 +229,67 @@ body:has(.earth-intro):not(.intro-done) .header { opacity: 0; pointer-events: no
 }
 
 .footer .footer-title span { font-size: 330rem; }
+
+/* Contact topics, set like Abdullah's budget picker: left aligned, grey until chosen, then bold with an underline. */
+.form form .budget__wrapper { gap: 44rem; justify-content: flex-start; }
+.budget__wrapper label::before, .budget__wrapper label::after { display: none; }
+.form form .budget__wrapper span { border-bottom: 3px solid transparent; color: #aaa; display: inline-block; padding-bottom: 8rem; transition: color .3s, border-color .3s, font-weight .3s; }
+.form form .budget__wrapper label:hover span { color: #555; }
+.form form .budget__wrapper .is-active-radio span { border-bottom-color: #101010; color: #101010; }
+
+/* Experience and Achievements: a ruled list, one row per entry. */
+.timeline { background-color: var(--bg-color); padding: 200rem 0px 0px; }
+.timeline__title { display: flex; justify-content: space-between; }
+.timeline__title h2 .letter { font-size: 163rem; letter-spacing: -13rem; line-height: 74%; text-transform: uppercase; }
+.timeline__code span { font-family: "Sofia Sans Condensed"; font-size: 36rem; font-weight: 700; letter-spacing: -2rem; line-height: 99%; text-transform: uppercase; }
+.timeline__rows { margin-top: 115rem; }
+.timeline-row { align-items: baseline; border-top: 2rem solid #101010; display: grid; gap: 40rem; grid-template-columns: 260rem 1fr 560rem; padding: 46rem 0px 50rem; }
+.timeline-row:last-child { border-bottom: 2rem solid #101010; }
+.timeline-row__when { font-family: "Spline Sans Mono"; font-size: 22rem; font-weight: 300; text-transform: uppercase; }
+.timeline-row__title { font-family: "Sofia Sans Condensed"; font-size: 64rem; font-weight: 700; letter-spacing: -2rem; line-height: 99%; text-transform: uppercase; }
+.timeline-row__title span { color: var(--text-gray-color); display: block; font-family: "Spline Sans Mono"; font-size: 22rem; font-weight: 300; letter-spacing: 0; margin-top: 14rem; }
+.timeline-row__text { font-family: "Spline Sans Mono"; font-size: 22rem; font-weight: 300; line-height: 1.3; text-transform: uppercase; }
+
+@media (max-width: 1100px) {
+  .timeline { padding: 70px 0px 0px; }
+  .timeline__title h2 .letter { font-size: 50px; letter-spacing: -3px; }
+  .timeline__code span { font-size: 14px; letter-spacing: -1px; }
+  .timeline__rows { margin-top: 40px; }
+  .timeline-row { gap: 12px; grid-template-columns: 1fr; padding: 24px 0px 28px; }
+  .timeline-row__when, .timeline-row__text, .timeline-row__title span { font-size: 14px; }
+  .timeline-row__title { font-size: 34px; }
+}
+
+/* Footer credit line: plain "REF - OLHA LAZARIEVA" and the copyright, set like the clock beside them. */
+.footer .footer-reserved__reserved { color: var(--text-color); font-size: 21rem; letter-spacing: -2%; line-height: 99%; text-align: right; text-transform: uppercase; white-space: nowrap; width: auto; }
+@media (max-width: 768px) {
+  .footer .footer-reserved__reserved { font-size: 10px; }
+}
+
+/* "Based in" sits under the title with tight word gaps; its right edge is set from the title by script. */
+.hero-based { gap: 34rem; justify-content: flex-start; width: max-content; }
+
+/* "REF - OL" rolls to "REF - OLHA LAZARIEVA" on hover; both names share one cell so the row never shifts. */
+.footer .footer-reserved__dev { margin-left: 0; overflow: hidden; padding-right: 0; }
+.footer .footer-reserved__dev::after { display: none; }
+.footer .ref-name { display: inline-grid; overflow: hidden; vertical-align: bottom; }
+.footer .ref-name > span { font: inherit; grid-area: 1 / 1; text-transform: uppercase; transition: transform .6s var(--transition-main); white-space: nowrap; }
+.footer .ref-name > span:last-child { transform: translateY(110%); }
+@media (hover: hover) {
+  .footer .footer-reserved__dev:hover .ref-name > span:first-child { transform: translateY(-110%); }
+  .footer .footer-reserved__dev:hover .ref-name > span:last-child { transform: translateY(0); }
+}
+.footer .footer-reserved__dev:hover .ref-name, .footer .footer-reserved__dev .ref-name { transform: none; }
+
+/* Loader: a dark cover with the real load percentage, which slides up when the page is ready. */
+.loader { background-color: #101010; color: #f7f7f7; display: block; height: 100dvh; left: 0; position: fixed; top: 0; width: 100%; z-index: 1000000; }
+.loader-name { font-family: "Spline Sans Mono"; font-size: 16rem; font-weight: 300; left: 67rem; letter-spacing: 1px; position: absolute; text-transform: uppercase; top: 52rem; }
+.loader .loader-counter { align-items: flex-start; bottom: 40rem; display: flex; font-family: "Sofia Sans Condensed"; font-size: 300rem; font-weight: 700; left: 60rem; letter-spacing: -14rem; line-height: 0.8; opacity: 1; text-transform: uppercase; transform: none; }
+.loader .loader-counter em { font-size: 90rem; font-style: normal; letter-spacing: 0; margin: 14rem 0 0 10rem; }
+.loader-bar { background-color: #f7f7f7; bottom: 0; height: 3px; left: 0; position: absolute; transform: scaleX(0); transform-origin: left; width: 100%; }
+@media (max-width: 1100px) {
+  .loader-name { font-size: 12px; left: 15px; top: 24px; }
+  .loader .loader-counter { bottom: 24px; font-size: 38vw; left: 12px; letter-spacing: -0.04em; }
+  .loader .loader-counter em { font-size: 12vw; margin: 4vw 0 0 6px; }
+}
+.loader .loader-counter > span { font: inherit; letter-spacing: inherit; }

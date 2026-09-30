@@ -1,0 +1,36 @@
+---
+import Split from "./Split.astro";
+
+interface Row {
+  when: string;
+  title: string;
+  place: string;
+  text: string;
+}
+interface Props {
+  id: string;
+  title: string;
+  code: string;
+  rows: Row[];
+}
+
+const { id, title, code, rows } = Astro.props;
+---
+
+<section class="timeline" id={id}>
+  <div class="container">
+    <div class="timeline__title">
+      <Split text={title} />
+      <div class="timeline__code"><span>{code}</span></div>
+    </div>
+    <div class="timeline__rows">
+      {rows.map((row) => (
+        <div class="timeline-row">
+          <span class="timeline-row__when">{row.when}</span>
+          <h3 class="timeline-row__title">{row.title}<span>{row.place}</span></h3>
+          <p class="timeline-row__text">{row.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

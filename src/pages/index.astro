@@ -7,6 +7,8 @@ import Works from "../components/Works.astro";
 import LaptopShowcase from "../components/LaptopShowcase.astro";
 import Services from "../components/Services.astro";
 import Education from "../components/Education.astro";
+import Timeline from "../components/Timeline.astro";
+import { experience, achievements } from "../data/site";
 import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
 ---
@@ -23,6 +25,8 @@ import Footer from "../components/Footer.astro";
         </div>
         <LaptopShowcase />
         <Services />
+        <Timeline id="experience" {...experience} />
+        <Timeline id="achievements" {...achievements} />
         <Education />
         <Contact />
         <Footer />

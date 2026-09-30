@@ -201,3 +201,24 @@ export const nav = [
   { label: "skills", id: "services" },
   { label: "connect", id: "connect" },
 ];
+
+// PLACEHOLDER entries: replace each row with your real experience and achievements.
+export const experience = {
+  title: "experience",
+  code: "cs/3",
+  rows: [
+    { when: "2026 — Present", title: "Role title", place: "Company name, City", text: "One or two lines on what you built and the result it had." },
+    { when: "2025", title: "Role title", place: "Company or team name", text: "One or two lines on what you built and the result it had." },
+    { when: "2024", title: "Project or volunteer role", place: "Organisation name", text: "One or two lines on what you built and the result it had." },
+  ],
+};
+
+export const achievements = {
+  title: "achievements",
+  code: "cs/4",
+  rows: [
+    { when: "2026", title: "Award or scholarship", place: "Awarded by", text: "A line on what it recognised and why it mattered." },
+    { when: "2025", title: "Hackathon or competition", place: "Event name", text: "A line on what you built and where you placed." },
+    { when: "2024", title: "Certification or milestone", place: "Issuer", text: "A line on what you learned or achieved." },
+  ],
+};

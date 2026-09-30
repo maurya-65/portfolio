@@ -706,7 +706,7 @@ body.loaded .hero-title .hero-word:last-child::after { opacity: 1; }
   .hero__wrapper { display: flex; flex-direction: column; }
 }
 
-.hero-title { flex-wrap: wrap; gap: 17rem; overflow: hidden; pointer-events: none; position: relative; }
+.hero-title { flex-wrap: nowrap; gap: 70rem; overflow: hidden; pointer-events: none; position: relative; }
 
 .hero-title, .hero-title .hero-word { display: flex; }
 
@@ -742,7 +742,7 @@ body.loaded .hero-title .hero-word:last-child::after { opacity: 1; }
   .hero-title__number { display: none; }
 }
 
-.hero-title .hero-letter { font-family: "Sofia Sans Condensed"; font-size: 300rem; font-weight: 700; letter-spacing: -25rem; line-height: 99%; position: relative; text-transform: uppercase; z-index: 2; }
+.hero-title .hero-letter { font-family: "Sofia Sans Condensed"; font-size: 245rem; font-weight: 700; letter-spacing: -20rem; line-height: 99%; position: relative; text-transform: uppercase; z-index: 2; }
 
 @media (max-width: 768px) {
   .hero-title .hero-letter { font-size: 120px; letter-spacing: -7px; line-height: 0.6; }
@@ -780,7 +780,7 @@ body.loaded .hero-title .hero-word:last-child::after { opacity: 1; }
 
 .hero-designer__img img { clip-path: polygon(0px 0px, 100% 0px, 100% 0px, 0px 0px); height: 100%; object-fit: cover; transform: scale(1.5); width: 100%; }
 
-.hero-based { align-items: center; display: flex; justify-content: space-between; opacity: 0; position: absolute; right: 50rem; top: 450rem; width: 535rem; }
+.hero-based { align-items: center; display: flex; justify-content: space-between; opacity: 0; position: absolute; right: 50rem; top: 400rem; width: 535rem; }
 
 @media (max-width: 1100px) {
   .hero-based { top: 240px; }
@@ -790,7 +790,7 @@ body.loaded .hero-title .hero-word:last-child::after { opacity: 1; }
   .hero-based { display: none; }
 }
 
-.hero-based span { font-size: 20rem; font-weight: 700; letter-spacing: 20rem; }
+.hero-based span { font-size: 20rem; font-weight: 700; letter-spacing: 8rem; }
 
 .hero-based span, .hero-description { line-height: 99%; text-transform: uppercase; }
 
@@ -866,13 +866,13 @@ body.loaded .hero-based, body.loaded .hero-collab, body.loaded .hero-description
 
 body.loaded .hero-title__number-wrap span { transform: translateY(0px) !important; }
 
-body.loaded .hero-title__number-first > span { transform: translateY(100%) !important; }
+body.loaded .hero-title__number-first > span { transform: translateY(200%) !important; }
 
-body.loaded .hero-title__number-third > span { transform: translateY(600%) !important; }
+body.loaded .hero-title__number-third > span { transform: translateY(0%) !important; }
 
-body.loaded .hero-title__number-four > span { transform: translateY(100%) !important; }
+body.loaded .hero-title__number-four > span { transform: translateY(0%) !important; }
 
-body.loaded .hero-title__number-five > span { transform: translateY(800%) !important; }
+body.loaded .hero-title__number-five > span { transform: translateY(600%) !important; }
 
 body.loaded .hero-title__number-second { opacity: 1 !important; }
 
@@ -2216,9 +2216,9 @@ body.loaded .hero-title__number-second { opacity: 1 !important; }
   .footer .footer-reserved__time .kyiv-clock h2 { font-size: 10px; }
 }
 
-.footer .footer-reserved__dev { font-family: "Spline Sans Mono"; font-size: 21rem; font-weight: 400; letter-spacing: -2%; line-height: 99%; margin-left: 535rem; overflow: hidden; padding-right: 85rem; position: relative; text-transform: uppercase; }
+.footer .footer-reserved__dev { font-family: "Spline Sans Mono"; font-size: 21rem; font-weight: 400; letter-spacing: -2%; line-height: 99%; margin-left: 535rem; overflow: hidden; padding-right: 150rem; position: relative; text-transform: uppercase; }
 
-.footer .footer-reserved__dev::after { content: "Max Milkin"; position: absolute; right: 0px; top: 100%; transition: top .6s var(--transition-main); }
+.footer .footer-reserved__dev::after { content: "Olha Lazarieva"; position: absolute; right: 0px; top: 100%; transition: top .6s var(--transition-main); }
 
 @media (max-width: 1100px) {
   .footer .footer-reserved__dev { font-size: 14px; margin-left: 230px; }

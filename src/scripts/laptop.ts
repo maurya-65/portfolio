@@ -460,20 +460,15 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
 const stage = document.querySelector<HTMLElement>(".laptop-stage");
 const canvas = stage?.querySelector<HTMLCanvasElement>(".laptop-canvas");
 
-if (stage && canvas) {
-  // Build the scene only when the section is about to be seen, not during the intro.
-  const watcher = new IntersectionObserver(
-    (entries) => {
-      if (!entries[entries.length - 1].isIntersecting) return;
-      watcher.disconnect();
-      // The screen and keyboard are drawn with the site fonts, so wait for them.
-      Promise.all([
+// The screen and keyboard are drawn with the site fonts, so wait for them. The loader waits on this promise.
+export const ready: Promise<void> =
+  stage && canvas
+    ? Promise.all([
         document.fonts.load('700 100px "Sofia Sans Condensed"'),
         document.fonts.load('300 40px "Spline Sans Mono"'),
         document.fonts.load('400 40px "Spline Sans Mono"'),
-      ]).then(() => init(stage, canvas));
-    },
-    { rootMargin: "600px" },
-  );
-  watcher.observe(stage);
-}
+      ]).then(() => {
+        init(stage, canvas);
+        return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      })
+    : Promise.resolve();

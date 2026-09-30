@@ -12,8 +12,9 @@ const one = <T extends Element>(selector: string, root: ParentNode = document) =
 const FULL = "polygon(0 0, 100% 0, 100% 100%, 0 100%)";
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// olha starts at the top on every load.
+// Always start at the top on a reload (the inline script in <head> does the same before first paint).
 if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+window.scrollTo(0, 0);
 
 // Smooth scrolling, driven by the GSAP ticker so ScrollTrigger stays in sync. olha uses Lenis with its defaults.
 let lenis: Lenis | null = null;
@@ -163,9 +164,23 @@ function wireTitles() {
 
 // The hero: the letters drop in from the middle out, then everything else fades up, and finally the
 // year counter rolls. Started when the hero first comes into view (olha starts it when its loader ends).
+let startHero: (() => void) | undefined;
 function wireHero() {
   const hero = one(".hero");
   if (!hero) return;
+
+  // "Based in" ends exactly under the last letter of the title: its right edge follows the title's.
+  const based = one<HTMLElement>(".hero-based");
+  const alignBased = () => {
+    const letters = all<HTMLElement>(".hero-title .hero-word:last-child .hero-letter");
+    const parent = based?.offsetParent as HTMLElement | null;
+    if (!based || !parent || !letters.length) return;
+    const trailing = Math.abs(parseFloat(getComputedStyle(letters[0]).letterSpacing) || 0);
+    based.style.right = `${parent.getBoundingClientRect().right - letters[letters.length - 1].getBoundingClientRect().right - trailing}px`;
+  };
+  alignBased();
+  window.addEventListener("resize", alignBased);
+  document.fonts?.ready.then(alignBased);
 
   if (reduced) {
     document.body.classList.add("loaded");
@@ -184,18 +199,18 @@ function wireHero() {
     for (const part of [".hero-based", ".hero-description", ".hero-recent", ".hero-collab"]) {
       gsap.to(part, { opacity: 1, delay: 1.5, duration: 1, ease });
     }
-    gsap.to(".hero-title__number-first>span", { y: "100%", delay: 2, duration: 2, ease });
+    gsap.to(".hero-title__number-first>span", { y: "200%", delay: 2, duration: 2, ease });
     gsap.to(".hero-title__number-third>span", { y: "300%", delay: 2.2, duration: 1.5, ease });
-    gsap.to(".hero-title__number-third>span", { y: "600%", delay: 3.2, duration: 2, ease });
-    gsap.to(".hero-title__number-four>span", { y: "100%", delay: 2.7, duration: 2, ease });
+    gsap.to(".hero-title__number-third>span", { y: "0%", delay: 3.2, duration: 2, ease });
+    gsap.to(".hero-title__number-four>span", { y: "0%", delay: 2.7, duration: 2, ease });
     gsap.to(".hero-title__number-five>span", { y: "900%", delay: 2.8, duration: 2, ease });
-    gsap.to(".hero-title__number-five>span", { y: "800%", delay: 4.3, duration: 2, ease });
+    gsap.to(".hero-title__number-five>span", { y: "600%", delay: 4.3, duration: 2, ease });
     gsap.to(".hero-title__number-second", { opacity: 1, delay: 3, duration: 1, ease });
     // olha marks the page loaded a few seconds after the last of these; the class pins the final state.
     gsap.delayedCall(7.5, () => document.body.classList.add("loaded"));
   };
 
-  ScrollTrigger.create({ trigger: hero, start: "top 90%", once: true, onEnter: play });
+  startHero = play;
 }
 
 // The About section: everything below the physics text is tied to the scroll through the pinned wrapper.
@@ -218,16 +233,40 @@ function wireAbout() {
   if (window.innerWidth > 1100) {
     gsap.to(".text-third__img img", { scrollTrigger: scrub("top -250%", "top -320%", 1, ".text-third__img"), clipPath: FULL, scale: 1, stagger: 0.2 });
 
-    // The paragraphs are fixed lines; each group rises out of its mask, last line first.
-    const groups = new Map<Element, HTMLElement[]>();
-    for (const line of all<HTMLElement>(".reveal-line")) {
-      const parent = line.parentElement!;
-      groups.set(parent, [...(groups.get(parent) ?? []), line.firstElementChild as HTMLElement]);
-    }
-    for (const [container, lines] of groups) {
-      gsap
-        .timeline({ scrollTrigger: scrub("top -250%", "top -290%", 2, container) })
-        .fromTo([...lines].reverse(), { yPercent: -220 }, { yPercent: 0, stagger: 0.1, ease: "power2.out" });
+    // The paragraphs reveal word by word, tied to the scroll (Abdullah's text effect): each word rises out of
+    // the line mask over a quarter of the block's scroll window, staggered across it, so lines come in top to
+    // bottom and play back in reverse when scrolling up. The wrapper is taller than the screen and only lets go
+    // of its pin at the end of the section, so a block's scroll position is worked out from where it will
+    // actually sit on screen: it reaches 85% of the viewport height at the start and 40% at the end.
+    const section = one<HTMLElement>(".about")!;
+    const pinned = one<HTMLElement>(".about__wrapper")!;
+    const offsetIn = (el: HTMLElement) => {
+      let top = 0;
+      for (let node: HTMLElement | null = el; node && node !== pinned; node = node.offsetParent as HTMLElement | null) top += node.offsetTop;
+      return top;
+    };
+    const released = () => section.getBoundingClientRect().top + window.scrollY + section.offsetHeight - pinned.offsetHeight;
+    for (const selector of [".abs-t", ".ast-s", ".text-third__title", ".text-four"]) {
+      const block = one<HTMLElement>(selector);
+      if (!block) continue;
+      const words: HTMLElement[] = [];
+      for (const inner of all<HTMLElement>(".reveal-line > span", block)) {
+        const parts = (inner.textContent ?? "").trim().split(/\s+/);
+        inner.textContent = "";
+        parts.forEach((word, i) => {
+          const span = document.createElement("span");
+          span.style.display = "inline-block";
+          span.textContent = word + (i < parts.length - 1 ? " " : "");
+          inner.append(span);
+          words.push(span);
+        });
+      }
+      if (!words.length) continue;
+      const each = words.length > 1 ? 0.75 / (words.length - 1) : 0;
+      const at = (line: number) => () => Math.min(released() + offsetIn(block) - window.innerHeight * line, released() + pinned.offsetHeight);
+      gsap.set(words, { yPercent: 110, opacity: 0 });
+      const timeline = gsap.timeline({ scrollTrigger: { trigger: section, start: at(0.85), end: at(0.4), scrub: 0.6, invalidateOnRefresh: true } });
+      words.forEach((word, i) => timeline.to(word, { yPercent: 0, opacity: 1, duration: 0.25, ease: "none" }, i * each));
     }
   } else {
     gsap.to(".about-mobile-text", { opacity: 1, scrollTrigger: scrub("top -150%", "top -200%", true, ".about-mobile-text") });
@@ -365,6 +404,61 @@ function wireFooter() {
 
 startClock();
 wireHeader();
+// The loader: a real percentage of what the first screen needs (fonts, the page load, the hero picture). The
+// number eases up as each part arrives; at 100 the loader slides away and the hero plays.
+function runLoader(): Promise<void> {
+  const cover = one<HTMLElement>("#loader");
+  if (!cover) return Promise.resolve();
+  if (reduced) {
+    cover.remove();
+    return Promise.resolve();
+  }
+  const counter = one<HTMLElement>("[data-loader-count]", cover)!;
+  const bar = one<HTMLElement>(".loader-bar", cover)!;
+  lenis?.stop();
+
+  // A safety net only: a stuck asset must not hold the page forever.
+  const patient = (task: Promise<unknown>) => Promise.race([task.catch(() => {}), new Promise((resolve) => setTimeout(resolve, 30000))]);
+  const pageLoaded = new Promise<void>((resolve) => (document.readyState === "complete" ? resolve() : window.addEventListener("load", () => resolve(), { once: true })));
+  const tasks = [
+    pageLoaded,
+    document.fonts?.ready ?? Promise.resolve(),
+    ...all<HTMLImageElement>("img").map((img) => (img.loading === "lazy" ? Promise.resolve() : img.decode())),
+    // The two Three.js scenes: modules, textures, shaders and the first frame.
+    import("./works.ts").then((module) => module.ready),
+    import("./laptop.ts").then((module) => module.ready),
+  ].map(patient);
+
+  const shown = { value: 0 };
+  const paint = () => {
+    counter.textContent = String(Math.round(shown.value));
+    bar.style.transform = `scaleX(${shown.value / 100})`;
+  };
+  const rise = (to: number, duration: number, onComplete?: () => void) =>
+    gsap.to(shown, { value: to, duration, ease: "power2.out", onUpdate: paint, onComplete, overwrite: true });
+
+  let done = 0;
+  for (const task of tasks) task.then(() => rise((++done / tasks.length) * 100, 0.8));
+  return new Promise((resolve) => {
+    Promise.all(tasks).then(() =>
+      rise(100, 0.5, () => {
+        gsap.to(cover, {
+          yPercent: -100,
+          duration: 1,
+          delay: 0.25,
+          ease: "power4.inOut",
+          onComplete: () => {
+            cover.remove();
+            ScrollTrigger.refresh();
+            lenis?.start();
+            resolve();
+          },
+        });
+      }),
+    );
+  });
+}
+
 wireRollLinks();
 wireCopy();
 wireTitles();
@@ -375,7 +469,21 @@ awards();
 wireForm();
 wireFooter();
 canvasText();
+runLoader().then(() => {
+  startHero?.();
+  window.dispatchEvent(new Event("site:ready"));
+});
 
 // Fonts change text widths, so everything is measured again once they are in.
 document.fonts?.ready.then(() => ScrollTrigger.refresh());
 window.addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
+
+// Lazy images below the fold arrive after `load` and can shift the page; re-measure so scroll start points stay true.
+let refreshTimer: number | undefined;
+for (const img of all<HTMLImageElement>("img")) {
+  if (img.complete) continue;
+  img.addEventListener("load", () => {
+    clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 200);
+  }, { once: true });
+}

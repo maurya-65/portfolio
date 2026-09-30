@@ -360,3 +360,8 @@ body { background: #050608; }
 .pc-terminal__line { align-items: center; display: flex; flex: none; gap: 8px; }
 .pc-terminal__prompt { color: #8a8a8a; white-space: nowrap; }
 .pc-terminal__input { background: transparent; border: 0; caret-color: #f7f7f7; color: inherit; flex: 1; font: inherit; outline: 0; }
+.pc-resume__head { border-top: 1px solid #333; color: #999; font-size: 11px; letter-spacing: 1px; margin: 18px 0 8px; padding-top: 12px; text-transform: uppercase; }
+.pc-resume__value { color: #f7f7f7 !important; text-transform: none !important; width: auto !important; }
+.pc-resume__actions { display: flex; gap: 10px; margin-top: 20px; }
+.pc-resume__button { border: 1px solid #f7f7f7; font-size: 12px; padding: 8px 14px; text-transform: uppercase; }
+.pc-resume__button:hover { background: #f7f7f7; color: #101010; }

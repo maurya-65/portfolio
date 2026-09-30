@@ -17,16 +17,16 @@ export const site = {
   github: "https://github.com/maurya-65",
   linkedin: "https://www.linkedin.com/in/maurya-oganja-626b31331",
   instagram: "https://www.instagram.com/maurya_65_?stkn=MXFrcjYzbnlldThidA==",
-  resume: "#", // PLACEHOLDER
+  resume: "/maurya_oganja_resume.pdf",
   // PLACEHOLDER photos (Picsum). Swap these URLs for real pictures.
   portrait: placeholder("maurya-portrait", 800, 1000),
 };
 
 export const hero = {
   words: ["software", "developer"],
-  tags: ["Web development", "Backend systems", "Interface design"],
+  tags: ["Full-stack web", "Agentic AI", "Backend systems"],
   basedIn: ["based", "in", "fredericton"],
-  blurb: "I’m a computer science student who builds fast, clear web software for teams of ALL SIZES",
+  blurb: "I’m a computer science student who builds full-stack web software and agentic AI products that people actually use",
   recentLabel: "recent work",
   recentName: "portfolio site",
   collab: "AVAILABLE FOR co-op",
@@ -47,15 +47,15 @@ export const about = {
   greeting: "Hello!",
   intro: "I’m Maurya Oganja",
   experienceTitle: "my experience",
-  experience: ["a Computer Science student at UNB", "in Fredericton, building web software", "and learning every layer of it."],
+  experience: ["a Computer Science student at UNB,", "on the Dean’s List, building full-stack", "and agentic AI software."],
   title: ["It’s not just a", "degree   -   it’s a way", "of building things."],
   // Every block below is written as fixed lines, the way olha sets hers.
   how: [
-    "I care about readable code,",
-    "sensible structure and pages",
-    "that load fast. I start simple,",
-    "test the idea early, and add",
-    "complexity last.",
+    "I build full-stack web apps",
+    "and agentic AI systems, and I",
+    "care about products that are",
+    "useful, not just projects. I start",
+    "simple, test early, add complexity last.",
   ],
   philosophyTitle: "my philosophy",
   philosophy: [
@@ -69,12 +69,12 @@ export const about = {
   ],
   lifestyleTitle: "beyond code",
   lifestyle: [
-    "I’m curious about how things",
-    "fit together: from a request",
-    "crossing the internet to one small",
-    "interface detail that changes",
-    "how an app feels. I learn by",
-    "building, breaking, rebuilding.",
+    "I tutor at UNB’s Math and",
+    "Learning Centre, which taught me",
+    "to explain and structure ideas.",
+    "I’m curious about a wide range",
+    "of things, and I use that to build",
+    "things that solve real problems.",
   ],
   connect: "lets contact",
   wish: [
@@ -150,34 +150,34 @@ export const services = {
   code: "cs/5",
   items: [
     {
-      title: "web development",
-      list: ["Responsive layouts", "Accessibility", "TypeScript"],
+      title: "full-stack web",
+      list: ["React and Next.js", "Tailwind CSS", "HTML and CSS"],
       image: placeholder("web-dev", 730, 470),
-      text: "I build responsive, accessible websites with modern HTML, CSS and TypeScript. Each page is meant to load fast and be easy to use.",
-    },
-    {
-      title: "frontend",
-      list: ["React and Astro", "Motion with GSAP", "Design systems"],
-      image: placeholder("frontend", 730, 470),
-      text: "I turn designs into interfaces with React, Astro and smooth, purposeful motion — interfaces that feel considered from the first click.",
+      text: "I build full-stack web apps with React, Next.js and Tailwind CSS, from the interface to the API behind it.",
     },
     {
       title: "backend",
-      list: ["Node.js and Python", "REST APIs", "Authentication"],
+      list: ["Node.js and Express", "REST APIs", "JWT authentication"],
       image: placeholder("backend", 730, 470),
-      text: "I write APIs and services in Node.js and Python that are simple to run, simple to test, and honest about what they do.",
+      text: "I write Node.js and Express services with REST APIs, JWT authentication, Git hooks and SQLite that are simple to run and to test.",
     },
     {
       title: "databases",
-      list: ["SQL and PostgreSQL", "Schema design", "Query tuning"],
+      list: ["PostgreSQL and Supabase", "MongoDB and MySQL", "Row-level security"],
       image: placeholder("databases", 730, 470),
-      text: "I design schemas and write queries in SQL and PostgreSQL that stay fast as the data grows.",
+      text: "I design schemas and queries in PostgreSQL, Supabase, MongoDB, MySQL and MariaDB, and lock data down with row-level security.",
     },
     {
-      title: "fundamentals",
-      list: ["Data structures", "Algorithms", "Git and testing"],
+      title: "agentic ai",
+      list: ["Claude API tool use", "LangChain and LangGraph", "MCP and RAG"],
+      image: placeholder("agentic-ai", 730, 470),
+      text: "I build agentic workflows with the Claude API (tool use), LangChain, LangGraph, MCP and RAG, with grounded answers and limited cost.",
+    },
+    {
+      title: "languages and tools",
+      list: ["JavaScript, TypeScript, Python", "Java, C, SQL", "Git, Docker, Vitest"],
       image: placeholder("fundamentals", 730, 470),
-      text: "Data structures, algorithms and clean code habits, backed by Git and careful testing.",
+      text: "JavaScript, TypeScript, Java, Python, C and SQL, backed by Git, GitHub Actions, Vitest, Docker and Vercel.",
     },
   ],
 };
@@ -185,14 +185,14 @@ export const services = {
 export const education = {
   title: "education",
   code: "cs/5",
-  lead: ["I’m learning in public,", "with a focus on", "fundamentals and shipping"],
+  lead: ["Dean’s List at UNB,", "with a focus on", "fundamentals and shipping"],
   leadSpan: 2,
-  note: ["University of New Brunswick", "(Bachelor of Computer Science)", "Fredericton, Canada."],
+  note: ["University of New Brunswick", "(BSc Computer Science, GPA 3.5 / 4.3)", "Fredericton, Canada."],
   // Each row opens a stack of pictures on hover, so it gets a few.
   items: [
     { name: "Computer Science, UNB", count: "( 1 )", images: ["unb-one", "unb-two", "unb-three"] },
-    { name: "GitHub projects", count: "( 4 )", images: ["github-one", "github-two"] },
-    { name: "Open to co-op roles", count: "( 2 )", images: ["co-op-one", "co-op-two"] },
+    { name: "Technology Management and Entrepreneurship", count: "( 2 )", images: ["github-one", "github-two"] },
+    { name: "Open to co-op roles", count: "( 3 )", images: ["co-op-one", "co-op-two"] },
   ].map((item) => ({ ...item, images: item.images.map((seed) => placeholder(seed, 640, 800)) })),
   article: { label: "My code on", link: "GITHUB" },
 };
@@ -223,6 +223,22 @@ export const footer = {
   ],
   copyright: "All rights reserved. Maurya Oganja",
   legal: "Any reproduction, distribution, or use of the materials without permission is prohibited.",
+};
+
+// The resume app on the Works desktop, from maurya_oganja_resume.pdf.
+export const resume = {
+  file: "maurya_oganja_resume.pdf",
+  summary:
+    "Computer Science student at the University of New Brunswick, on the Dean's List for 2025-26 and one of two students awarded the Eldon and Maxine Clair Scholarship. I tutor at UNB's MLC, which shapes how I explain and structure ideas. My work isn't limited to full stack development and agentic AI; I like understanding a wide range of things and using that to build useful products, not just projects.",
+  education: ["University of New Brunswick, Fredericton, NB", "BSc Computer Science, Sep 2024 - Present", "GPA 3.5 / 4.3", "Diploma in Technology Management and Entrepreneurship (ongoing)"],
+  skills: [
+    ["Languages", "JavaScript, TypeScript, Java, Python, C, SQL"],
+    ["Frontend", "React, Next.js, Tailwind CSS, HTML, CSS"],
+    ["Backend", "Node.js, Express, REST APIs, JWT authentication, Git Hooks, SQLite"],
+    ["Databases", "PostgreSQL, Supabase, MongoDB, MySQL, MariaDB, Row-Level Security"],
+    ["AI and agents", "Claude API (tool use), LangChain, LangGraph, MCP, RAG, Agentic Workflows"],
+    ["Tools", "Git, GitHub, GitHub Actions, Vitest, Vercel, npm, Docker"],
+  ],
 };
 
 export const nav = [

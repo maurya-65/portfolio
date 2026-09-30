@@ -1,8 +1,8 @@
 ---
-import { projects, site } from "../data/site";
+import { projects, site, resume } from "../data/site";
 import Split from "./Split.astro";
 import Roll from "./Roll.astro";
-const pcData = { owner: `${site.firstName} ${site.lastName}`, user: site.firstName.toLowerCase(), about: [`${site.firstName} ${site.lastName}, a computer science student at UNB in Fredericton.`, "I build web software and like learning every layer of it."], projects: projects.items, contact: { email: site.email, github: site.github, linkedin: site.linkedin } };
+const pcData = { owner: `${site.firstName} ${site.lastName}`, user: site.firstName.toLowerCase(), about: [`${site.firstName} ${site.lastName}, a computer science student at UNB in Fredericton.`, "I build web software and like learning every layer of it."], resume: { ...resume, href: site.resume }, projects: projects.items, contact: { email: site.email, github: site.github, linkedin: site.linkedin } };
 ---
 
 <section class="projects" id="works">

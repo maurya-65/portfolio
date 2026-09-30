@@ -7,6 +7,7 @@ export type PCData = {
   user: string;
   projects: Project[];
   about: string[];
+  resume: { href: string; file: string; summary: string; education: string[]; skills: [string, string][] };
   contact: { email: string; github: string; linkedin: string };
 };
 
@@ -211,6 +212,31 @@ export function createPC(root: HTMLElement, data: PCData) {
     openWindow("about", "about.txt", body, { x: 200, y: 60, w: 440, h: 250 });
   }
 
+  function openResume() {
+    const { resume } = data;
+    const body = el("div", "pc-project pc-resume");
+    body.append(el("h3", "pc-project__title", data.owner), el("p", "pc-project__meta", resume.file), el("p", "pc-project__blurb", resume.summary));
+    body.append(el("h4", "pc-resume__head", "education"));
+    for (const line of resume.education) body.append(el("p", "pc-project__blurb", line));
+    body.append(el("h4", "pc-resume__head", "technical skills"));
+    for (const [name, value] of resume.skills) {
+      const row = el("p", "pc-contact");
+      row.append(el("span", "", name), el("span", "pc-resume__value", value));
+      body.append(row);
+    }
+    const actions = el("div", "pc-resume__actions");
+    const view = el("a", "pc-resume__button", "open pdf ↗");
+    view.href = resume.href;
+    view.target = "_blank";
+    view.rel = "noopener";
+    const save = el("a", "pc-resume__button", "download");
+    save.href = resume.href;
+    save.download = resume.file;
+    actions.append(view, save);
+    body.append(actions);
+    openWindow("resume", "resume.pdf", body, { x: 170, y: 20, w: 560, h: 420 });
+  }
+
   function openContact() {
     const body = el("div", "pc-project");
     body.append(el("h3", "pc-project__title", "Say hello"), el("p", "pc-project__meta", "contact"));
@@ -263,7 +289,7 @@ export function createPC(root: HTMLElement, data: PCData) {
     };
     const commands: Record<string, (args: string[]) => void> = {
       help: () =>
-        print("help             this list", "ls               list projects", "open <name|no>   open a project", "cat <name|no>    print a project here", "about            who I am", "contact          how to reach me", "apps             open a desktop app: projects, about, contact", "clear            clear the screen", "exit             close this terminal", "logout           sign out"),
+        print("help             this list", "ls               list projects", "open <name|no>   open a project", "cat <name|no>    print a project here", "about            who I am", "contact          how to reach me", "apps             open a desktop app: projects, resume, about, contact", "clear            clear the screen", "exit             close this terminal", "logout           sign out"),
       ls: () => print(...data.projects.map((project, index) => `${String(index + 1).padStart(2, "0")}  ${project.slug}.md`)),
       open: ([name]) => {
         const project = name && find(name);
@@ -281,9 +307,9 @@ export function createPC(root: HTMLElement, data: PCData) {
       whoami: () => print("visitor, and a very welcome one"),
       contact: () => print(`email     ${data.contact.email}`, `github    ${data.contact.github}`, `linkedin  ${data.contact.linkedin}`),
       apps: ([name]) => {
-        const apps: Record<string, () => void> = { projects: openFiles, about: openAbout, contact: openContact };
+        const apps: Record<string, () => void> = { projects: openFiles, resume: openResume, about: openAbout, contact: openContact };
         if (name && apps[name]) apps[name]();
-        else print("usage: apps <projects|about|contact>");
+        else print("usage: apps <projects|resume|about|contact>");
       },
       date: () => print(new Date().toString()),
       clear: () => {
@@ -332,6 +358,7 @@ export function createPC(root: HTMLElement, data: PCData) {
   const apps: [string, string, () => void][] = [
     ["projects", "▤", openFiles],
     ["terminal", ">_", openTerminal],
+    ["resume", "CV", openResume],
     ["about", "i", openAbout],
     ["contact", "@", openContact],
   ];

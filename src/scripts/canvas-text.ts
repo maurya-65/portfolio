@@ -1,6 +1,7 @@
 import Matter from "matter-js";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { gsap } from "gsap";
+import { lite, pixelRatio } from "./perf";
 
 type Line = { text: string; white: boolean };
 type Point = { x: number; y: number };
@@ -63,11 +64,11 @@ export function canvasText(): Promise<void> {
     ruler.textAlign = "left";
     ruler.textBaseline = "alphabetic";
 
-    const engine = Engine.create({ positionIterations: 8, velocityIterations: 6 });
+    const engine = Engine.create({ positionIterations: lite ? 5 : 8, velocityIterations: lite ? 4 : 6 });
     const render = Render.create({
       element: host!,
       engine,
-      options: { width, height, pixelRatio: Math.min(window.devicePixelRatio || 1, 2), wireframes: false, background: "#101010" },
+      options: { width, height, pixelRatio: pixelRatio(), wireframes: false, background: "#101010" },
     });
     engine.gravity.y = 3;
 

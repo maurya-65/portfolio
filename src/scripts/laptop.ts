@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import { lite, pixelRatio } from "./perf";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 // All sizes are in scene units, roughly 10 cm each.
@@ -290,12 +291,14 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const canHover = window.matchMedia("(hover: hover)").matches;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lite, alpha: true, powerPreference: "default" });
+  renderer.setPixelRatio(pixelRatio());
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.VSMShadowMap;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // The lights never move, only the lid does, so the shadow is redrawn only when the lid moves.
+  renderer.shadowMap.autoUpdate = false;
 
   const scene = new THREE.Scene();
   const environment = new THREE.PMREMGenerator(renderer);
@@ -305,15 +308,14 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(2, 8, 3.5);
   key.castShadow = true;
-  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.mapSize.set(lite ? 512 : 1024, lite ? 512 : 1024);
   key.shadow.camera.far = 30;
   key.shadow.camera.left = -7;
   key.shadow.camera.right = 7;
   key.shadow.camera.top = 7;
   key.shadow.camera.bottom = -7;
   key.shadow.bias = -0.0004;
-  key.shadow.radius = 9;
-  key.shadow.blurSamples = 20;
+  key.shadow.radius = 4;
   const rim = new THREE.DirectionalLight(0x8fb0ff, 1.6);
   rim.position.set(-4, 3, -4);
   scene.add(key, rim);
@@ -434,6 +436,16 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
 
   const damp = (from: number, to: number, rate: number, dt: number) => from + (to - from) * (1 - Math.exp(-rate * dt));
 
+  // One frame now compiles the shaders and uploads the textures while the loader is still up, so the first
+  // frame on screen does not stall.
+  renderer.shadowMap.needsUpdate = true;
+  renderer.render(scene, camera);
+
+  // Nothing is drawn unless the view or the lid changed. The idle sway is drawn at 30 frames a second (20 on
+  // lite machines), a drag or a lid move at full rate.
+  let lastKey = "";
+  let lastDraw = 0;
+  let lastLid = -1;
   gsap.ticker.add((time, deltaTime) => {
     if (!visible) return;
     const dt = Math.min(deltaTime, 100) / 1000;
@@ -452,7 +464,18 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
     );
     camera.lookAt(focus);
 
-    lid.rotation.x = -lidState.angle;
+    const lidMoved = Math.abs(lidState.angle - lastLid) > 1e-4;
+    const frame = `${azimuth.toFixed(4)}|${view.elevation.toFixed(4)}`;
+    const swayOnly = !lidMoved && !dragging && Math.abs(view.azimuth - goal.azimuth) < 1e-3 && Math.abs(view.elevation - goal.elevation) < 1e-3;
+    if (frame === lastKey && !lidMoved) return;
+    if (swayOnly && time - lastDraw < (lite ? 0.05 : 0.033)) return;
+    lastKey = frame;
+    lastDraw = time;
+    if (lidMoved) {
+      lastLid = lidState.angle;
+      lid.rotation.x = -lidState.angle;
+      renderer.shadowMap.needsUpdate = true;
+    }
     renderer.render(scene, camera);
   });
 }

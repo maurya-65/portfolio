@@ -1,7 +1,6 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import { canvasText } from "./canvas-text";
 import { awards } from "./awards";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -419,7 +418,7 @@ function runLoader(): Promise<void> {
   const ring = import("./loader-ring.ts").then((module) => module.createLoaderRing(cover)).catch(() => null);
 
   // A safety net only: a stuck asset must not hold the page forever.
-  const patient = (task: Promise<unknown>) => Promise.race([task.catch(() => {}), new Promise((resolve) => setTimeout(resolve, 30000))]);
+  const patient = (task: Promise<unknown>) => Promise.race([task.catch(() => {}), new Promise((resolve) => setTimeout(resolve, 20000))]);
   const pageLoaded = new Promise<void>((resolve) => (document.readyState === "complete" ? resolve() : window.addEventListener("load", () => resolve(), { once: true })));
   const tasks = [
     pageLoaded,
@@ -488,7 +487,8 @@ wireServices();
 awards();
 wireForm();
 wireFooter();
-const textReady = canvasText();
+// Matter.js is about a third of this file, and nothing needs it before the loader is on screen.
+const textReady = import("./canvas-text").then((module) => module.canvasText());
 runLoader().then(() => {
   window.dispatchEvent(new Event("site:ready"));
 });

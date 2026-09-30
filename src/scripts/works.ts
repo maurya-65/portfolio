@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { lite, pixelRatio } from "./perf";
 import { createPC, PC_SIZE, type PCData } from "./pc";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -24,8 +25,8 @@ function init(host: HTMLElement): Promise<void> {
   const desktop = () => window.innerWidth > 1100;
   const BACKGROUND = "#101010";
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lite, powerPreference: "default" });
+  renderer.setPixelRatio(pixelRatio());
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.92;
@@ -297,7 +298,8 @@ function init(host: HTMLElement): Promise<void> {
       camera.position.y += dy;
       camera.lookAt(0, 0, 0);
     }
-    if (active || dirty || moving) {
+    // Only when something changed: a scrub, a fade or the parallax. Not every frame while the section is near.
+    if (dirty || moving) {
       renderer.render(scene, camera);
       dirty = false;
     }

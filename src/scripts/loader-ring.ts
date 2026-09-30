@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
+import { lite, pixelRatio } from "./perf";
 
 // The loader scene, copied from olha's: a light canvas (camera at z 6, fov 50), two radius-1 spheres whose
 // textures are transparent with only text on them, so they read as two rings of words. The spheres turn at
@@ -96,8 +97,8 @@ export async function createLoaderRing(host: HTMLElement) {
   canvas.className = "loader-gl";
   host.prepend(canvas);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lite });
+  renderer.setPixelRatio(pixelRatio());
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(BACKGROUND);
   const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
@@ -196,6 +197,8 @@ export async function createLoaderRing(host: HTMLElement) {
         (mesh.material as THREE.ShaderMaterial).dispose();
       }
       renderer.dispose();
+      // Give the WebGL context back: the two scenes below need it and browsers only allow a handful.
+      renderer.forceContextLoss();
     },
   };
 }

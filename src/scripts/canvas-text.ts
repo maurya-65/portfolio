@@ -8,11 +8,11 @@ type Point = { x: number; y: number };
 // The statement in the About section: every letter is a Matter.js body, standing in place until the
 // section scrolls in, then falling and piling up on the floor. The mouse pushes letters away. Numbers are
 // olha's: gravity 3, the layout scaled from a 1920 wide design, forces 0.4 (0.05 on a phone).
-export function canvasText() {
+export function canvasText(): Promise<void> {
   const host = document.querySelector<HTMLElement>(".canvas-text");
-  if (!host) return;
+  if (!host) return Promise.resolve();
   const lines: Line[] = JSON.parse(host.dataset.lines ?? "[]");
-  if (!lines.length) return;
+  if (!lines.length) return Promise.resolve();
 
   const { Engine, Render, World, Bodies, Events, Runner, Body } = Matter;
   let teardown: (() => void) | null = null;
@@ -239,6 +239,10 @@ export function canvasText() {
     );
     watcher.observe(host!);
 
+    // Draw the first frame now, so the letters are already on the canvas when the section scrolls in.
+
+    Render.world(render);
+
     ScrollTrigger.refresh(true);
 
     teardown = () => {
@@ -257,7 +261,7 @@ export function canvasText() {
     };
   }
 
-  build();
+  const ready = build();
 
   let timer: number | undefined;
   let lastWidth = window.innerWidth;
@@ -272,4 +276,5 @@ export function canvasText() {
       build();
     }, 120);
   });
+  return ready;
 }

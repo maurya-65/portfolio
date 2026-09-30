@@ -99,13 +99,6 @@ body { background: #050608; }
   overflow-x: clip;
 }
 
-/* olha fades main and the links in when its loader ends. Here the Earth intro is the loader, so the page is
-   already visible below it; only the nav waits until the intro has played. */
-main { opacity: 1; }
-a { pointer-events: auto; }
-.header { opacity: 1; pointer-events: auto; transition: opacity 0.5s var(--ease); }
-body:has(.earth-intro):not(.intro-done) .header { opacity: 0; pointer-events: none; }
-
 /* olha scrolls an inner container on phones; the Earth intro needs the window to scroll, so it always does. */
 @media (max-width: 1100px) {
   body, html { overflow: visible; overflow-x: hidden; }
@@ -281,15 +274,9 @@ body:has(.earth-intro):not(.intro-done) .header { opacity: 0; pointer-events: no
 }
 .footer .footer-reserved__dev:hover .ref-name, .footer .footer-reserved__dev .ref-name { transform: none; }
 
-/* Loader: a dark cover with the real load percentage, which slides up when the page is ready. */
-.loader { background-color: #101010; color: #f7f7f7; display: block; height: 100dvh; left: 0; position: fixed; top: 0; width: 100%; z-index: 1000000; }
-.loader-name { font-family: "Spline Sans Mono"; font-size: 16rem; font-weight: 300; left: 67rem; letter-spacing: 1px; position: absolute; text-transform: uppercase; top: 52rem; }
-.loader .loader-counter { align-items: flex-start; bottom: 40rem; display: flex; font-family: "Sofia Sans Condensed"; font-size: 300rem; font-weight: 700; left: 60rem; letter-spacing: -14rem; line-height: 0.8; opacity: 1; text-transform: uppercase; transform: none; }
-.loader .loader-counter em { font-size: 90rem; font-style: normal; letter-spacing: 0; margin: 14rem 0 0 10rem; }
-.loader-bar { background-color: #f7f7f7; bottom: 0; height: 3px; left: 0; position: absolute; transform: scaleX(0); transform-origin: left; width: 100%; }
-@media (max-width: 1100px) {
-  .loader-name { font-size: 12px; left: 15px; top: 24px; }
-  .loader .loader-counter { bottom: 24px; font-size: 38vw; left: 12px; letter-spacing: -0.04em; }
-  .loader .loader-counter em { font-size: 12vw; margin: 4vw 0 0 6px; }
-}
+/* Loader: olha's light scene with two belts of text and the real load percentage at the bottom. */
+.loader { background-color: #f7f7f7; color: #101010; z-index: 1000000; }
+.loader-gl { display: block; height: 100%; width: 100%; }
 .loader .loader-counter > span { font: inherit; letter-spacing: inherit; }
+.loader .loader-counter { font-size: 26rem; }
+@media (max-width: 1100px) { .loader .loader-counter { font-size: 18px; } }

@@ -20,7 +20,7 @@ import Split from "./Split.astro";
           <ul class="services-block__list">
             {item.list.map((line) => <li><span>/ {line}</span></li>)}
           </ul>
-          <div class="services-block__img"><img src={item.image} alt={item.title} loading="lazy" /></div>
+          <div class="services-block__img"><img src={item.image} alt={item.title} /></div>
         </div>
         <p class="services-block__text">{item.text}</p>
       </div>

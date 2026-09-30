@@ -33,9 +33,7 @@ const description = `${site.firstName} ${site.lastName} is a computer science st
   </head>
   <body>
     <div class="loader" id="loader" role="status" aria-label="Loading">
-      <span class="loader-name">{site.firstName} {site.lastName}</span>
-      <span class="loader-counter" aria-hidden="true"><span data-loader-count>0</span><em>%</em></span>
-      <span class="loader-bar"></span>
+      <span class="loader-counter" aria-hidden="true"><span data-loader-count>0</span>%</span>
     </div>
     <slot />
     <script>

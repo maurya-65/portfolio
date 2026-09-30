@@ -404,8 +404,8 @@ function wireFooter() {
 
 startClock();
 wireHeader();
-// The loader: a real percentage of what the first screen needs (fonts, the page load, the hero picture). The
-// number eases up as each part arrives; at 100 the loader slides away and the hero plays.
+// The loader, after olha's: two belts of developer text turn on a light screen while a real percentage climbs
+// (fonts, the page load, every image, both 3D scenes). At 100 the belts drop away and the hero plays at once.
 function runLoader(): Promise<void> {
   const cover = one<HTMLElement>("#loader");
   if (!cover) return Promise.resolve();
@@ -414,8 +414,9 @@ function runLoader(): Promise<void> {
     return Promise.resolve();
   }
   const counter = one<HTMLElement>("[data-loader-count]", cover)!;
-  const bar = one<HTMLElement>(".loader-bar", cover)!;
+  const label = one<HTMLElement>(".loader-counter", cover)!;
   lenis?.stop();
+  const ring = import("./loader-ring.ts").then((module) => module.createLoaderRing(cover)).catch(() => null);
 
   // A safety net only: a stuck asset must not hold the page forever.
   const patient = (task: Promise<unknown>) => Promise.race([task.catch(() => {}), new Promise((resolve) => setTimeout(resolve, 30000))]);
@@ -423,40 +424,59 @@ function runLoader(): Promise<void> {
   const tasks = [
     pageLoaded,
     document.fonts?.ready ?? Promise.resolve(),
-    ...all<HTMLImageElement>("img").map((img) => (img.loading === "lazy" ? Promise.resolve() : img.decode())),
+    ...all<HTMLImageElement>("img").map((img) => img.decode()),
     // The two Three.js scenes: modules, textures, shaders and the first frame.
     import("./works.ts").then((module) => module.ready),
     import("./laptop.ts").then((module) => module.ready),
+    ring,
+    // The About letters: measured with the real font and drawn once.
+    textReady,
   ].map(patient);
 
-  const shown = { value: 0 };
-  const paint = () => {
-    counter.textContent = String(Math.round(shown.value));
-    bar.style.transform = `scaleX(${shown.value / 100})`;
-  };
-  const rise = (to: number, duration: number, onComplete?: () => void) =>
-    gsap.to(shown, { value: to, duration, ease: "power2.out", onUpdate: paint, onComplete, overwrite: true });
-
-  let done = 0;
-  for (const task of tasks) task.then(() => rise((++done / tasks.length) * 100, 0.8));
+  // olha's sequence, which starts only once everything has loaded (hers is about 11 seconds from the request):
+  // the rings rise after 1s, the number fades in at 2.3s, counts 0 to 100 over 4s (power3.out) from about 3.1s,
+  // fades out, and the rings drop. The number is only ever shown counting after the page is really ready.
   return new Promise((resolve) => {
-    Promise.all(tasks).then(() =>
-      rise(100, 0.5, () => {
-        gsap.to(cover, {
-          yPercent: -100,
-          duration: 1,
-          delay: 0.25,
-          ease: "power4.inOut",
-          onComplete: () => {
-            cover.remove();
-            ScrollTrigger.refresh();
-            lenis?.start();
-            resolve();
-          },
-        });
-      }),
-    );
+    Promise.all(tasks).then(async () => {
+      const scene = await ring;
+      scene?.start();
+      const shown = { value: 0 };
+      const timeline = gsap.timeline();
+      timeline.to(label, { opacity: 1, duration: 0.6, delay: 2.3 });
+      timeline.to(shown, { value: 100, duration: 4, delay: 0.5, ease: "power3.out", onUpdate: () => (counter.textContent = String(Math.round(shown.value))) }, "-=0.3");
+      timeline.to(label, {
+        opacity: 0,
+        duration: 0.3,
+        onComplete: () => {
+          // Measure everything while the cover still hides it, so nothing reflows under the hero animation.
+          ScrollTrigger.refresh();
+          // The hero starts as the rings start to drop, not after they are gone.
+          onLoaderExit();
+          // olha's order: the rings drop, then the sections fade in, then the links come alive, then the header fades in.
+          const exit = scene?.exit() ?? gsap.timeline();
+          exit.to("section", { opacity: 1, pointerEvents: "auto", duration: 1 });
+          exit.to("a", { pointerEvents: "auto" });
+          exit.to(".header", { opacity: 1, pointerEvents: "auto", duration: 1 });
+          gsap.to(cover, {
+            opacity: 0,
+            delay: 1,
+            duration: 0.5,
+            ease: "power4.out",
+            onComplete: () => {
+              scene?.destroy();
+              cover.remove();
+              lenis?.start();
+              resolve();
+            },
+          });
+        },
+      });
+    });
   });
+}
+
+function onLoaderExit() {
+  startHero?.();
 }
 
 wireRollLinks();
@@ -468,9 +488,8 @@ wireServices();
 awards();
 wireForm();
 wireFooter();
-canvasText();
+const textReady = canvasText();
 runLoader().then(() => {
-  startHero?.();
   window.dispatchEvent(new Event("site:ready"));
 });
 

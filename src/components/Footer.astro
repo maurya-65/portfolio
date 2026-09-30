@@ -1,7 +1,6 @@
 ---
 import { site, footer } from "../data/site";
 import Roll from "./Roll.astro";
-import Arrow from "./Arrow.astro";
 
 const name = `${site.firstName} ${site.lastName}`.toLowerCase();
 ---
@@ -12,9 +11,9 @@ const name = `${site.firstName} ${site.lastName}`.toLowerCase();
       <a href={`tel:${site.phoneHref}`} class="footer-phone footer-line-animation">{site.phone}</a>
       <a href={`mailto:${site.email}`} class="footer-email footer-line-animation" data-copy={site.email}>{site.email}</a>
       <div class="footer__social">
-        <a href={site.instagram} target="_blank" rel="noopener noreferrer" class="link-line">instagram<Arrow /></a>
-        <a href={site.github} target="_blank" rel="noopener noreferrer" class="link-line">github<Arrow /></a>
-        <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link-line">linkedin<Arrow /></a>
+        <a href={site.instagram} target="_blank" rel="noopener noreferrer" class="link-line">instagram</a>
+        <a href={site.github} target="_blank" rel="noopener noreferrer" class="link-line">github</a>
+        <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link-line">linkedin</a>
       </div>
       <div class="footer-pages-location">
         <div class="footer-pages">

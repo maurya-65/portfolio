@@ -16,7 +16,7 @@ export const site = {
   // Links. PLACEHOLDER ones are "#" until the real profile links arrive.
   github: "https://github.com/maurya-65",
   linkedin: "https://www.linkedin.com/in/maurya-oganja-626b31331",
-  instagram: "#", // PLACEHOLDER
+  instagram: "https://www.instagram.com/maurya_65_?stkn=MXFrcjYzbnlldThidA==",
   resume: "#", // PLACEHOLDER
   // PLACEHOLDER photos (Picsum). Swap these URLs for real pictures.
   portrait: placeholder("maurya-portrait", 800, 1000),

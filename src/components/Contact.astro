@@ -1,37 +1,36 @@
 ---
 import { site, contact } from "../data/site";
-import Letters from "./Letters.astro";
-
-const [lineA, lineB] = contact.headline;
+import Split from "./Split.astro";
+import Arrow from "./Arrow.astro";
 ---
 
-<section id="contact" class="contact">
-  <p class="contact-kicker">{contact.kicker}</p>
-  <h2 class="contact-title">
-    <span class="contact-line"><Letters text={lineA} /></span>
-    <span class="contact-between">{contact.between}</span>
-    <span class="contact-line contact-line-react"><Letters text={lineB} /></span>
-  </h2>
-
-  <form class="contact-form" data-mailto={site.email}>
-    <label><span>Your name*</span><input name="name" required autocomplete="name" /></label>
-    <label><span>Phone*</span><input name="phone" type="tel" required autocomplete="tel" /></label>
-    <label><span>Your email*</span><input name="email" type="email" required autocomplete="email" /></label>
-    <label><span>Your message</span><textarea name="message" rows="2"></textarea></label>
-
-    <fieldset class="budget">
-      <legend>{contact.legend}</legend>
-      {contact.topics.map((topic, index) => (
-        <label>
-          <input type="radio" name="topic" value={topic} checked={index === 0} />
-          <span>{topic}</span>
-        </label>
-      ))}
-    </fieldset>
-
-    <button type="submit" class="contact-submit">
-      <span>{contact.submit}</span>
-      <i aria-hidden="true">→</i>
-    </button>
-  </form>
+<section class="form" id="connect">
+  <div class="container">
+    <div class="form__wrapper">
+      <h3 class="form-title-top">{contact.kicker}</h3>
+      <Split text={contact.headline[0]} class="form-title" />
+      <h3 class="form-title-middle">{contact.between}</h3>
+      <Split text={contact.headline[1]} class="form-title" />
+    </div>
+    <form data-contact-form data-mailto={site.email} action="#" method="POST" accept-charset="UTF-8">
+      <div class="form-fields">
+        <input type="text" name="name" placeholder="your name*" autocomplete="name" required />
+        <input type="tel" name="phone" placeholder="phone*" autocomplete="tel" inputmode="tel" required pattern="^\+[0-9()\-\s]{6,}$" title="Start with +, then digits, spaces, ( ) - (min 7 chars)" />
+        <input type="email" name="email" placeholder="your email*" autocomplete="email" required />
+        <textarea name="message" placeholder="How can I help you" required></textarea>
+        <h4>{contact.legend}</h4>
+        <div class="budget">
+          <div class="budget__wrapper">
+            {contact.topics.map((topic, index) => (
+              <label class={index === 0 ? "is-active-radio" : undefined}>
+                <input type="radio" name="topic" value={topic.value} required checked={index === 0} />
+                <span>{topic.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+      <button class="link-line" type="submit">{contact.submit}<Arrow /></button>
+    </form>
+  </div>
 </section>

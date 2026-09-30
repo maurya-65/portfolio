@@ -1,33 +1,41 @@
 ---
 import { site, hero } from "../data/site";
-import Letters from "./Letters.astro";
+import Arrow from "./Arrow.astro";
 
-const [first, second] = site.roleWords;
+const digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 ---
 
-<section id="top" class="hero">
-  <h1 class="hero-title" aria-label={site.role}>
-    <span class="hero-line"><Letters text={first} /></span>
-    <span class="hero-gap"> </span>
-    <span class="hero-line"><Letters text={second} /></span>
-  </h1>
-  <p class="hero-based">{site.basedIn}</p>
-
-  <!-- The reference has a portrait standing in this box. Drop an <img> in here later. -->
-  <div class="hero-panel">
-    <ul class="hero-tags">
-      {hero.tags.map((tag) => <li>/ {tag}</li>)}
-    </ul>
-  </div>
-
-  <p class="hero-blurb">{hero.blurb}</p>
-
-  <a class="hero-float hero-float-right" href="#works">
-    <span>Recent work <i aria-hidden="true">↘</i></span>
-    <strong>{hero.recentWork}</strong>
-  </a>
-  <div class="hero-float hero-float-left">
-    <span>{site.availability}</span>
-    <a href={`mailto:${site.email}`}>{site.email}</a>
+<section class="hero">
+  <div class="container">
+    <div class="hero__wrapper">
+      <h1 class="hero-title">
+        <div class="hero-title__number">
+          <div class="hero-title__number-wrap hero-title__number-first">{digits.map((d) => <span>{d}</span>)}</div>
+          <span class="hero-title__number-second">,</span>
+          <div class="hero-title__number-wrap hero-title__number-third">{digits.map((d) => <span>{d}</span>)}</div>
+          <div class="hero-title__number-wrap hero-title__number-four">{digits.map((d) => <span>{d}</span>)}</div>
+          <div class="hero-title__number-wrap hero-title__number-five">{digits.map((d) => <span>{d}</span>)}</div>
+        </div>
+        {hero.words.map((word) => <div class="hero-word">{[...word].map((char) => <span class="hero-letter">{char}</span>)}</div>)}
+      </h1>
+      <div class="hero-designer">
+        <div class="hero-designer__descr">
+          {hero.tags.map((tag) => <p><span>/ {tag}</span></p>)}
+        </div>
+        <div class="hero-designer__img">
+          <img src={site.portrait} alt={`${site.firstName} ${site.lastName}`} />
+        </div>
+      </div>
+      <div class="hero-based">{hero.basedIn.map((word) => <span>{word}</span>)}</div>
+      <div class="hero-description"><p>{hero.blurb}</p></div>
+      <a class="hero-recent" href="#works" data-anchor="works">
+        <span>{hero.recentLabel}<Arrow /></span>
+        <span>{hero.recentName}</span>
+      </a>
+      <a href={`mailto:${site.email}`} class="hero-collab" data-copy={site.email}>
+        <span>{hero.collab}<Arrow stroke="#101010" /></span>
+        <span class="link-line">{site.email.toUpperCase()}</span>
+      </a>
+    </div>
   </div>
 </section>

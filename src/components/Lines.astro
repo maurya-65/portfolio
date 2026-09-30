@@ -1,0 +1,18 @@
+---
+// olha sets these paragraphs as fixed lines on a wide screen (each line masked so it can rise into place)
+// and as one paragraph on a phone.
+interface Props {
+  lines: string[];
+  // The wide-screen-only block has no phone version, and sits inside a <p> already.
+  mobile?: boolean;
+}
+
+const { lines, mobile = true } = Astro.props;
+---
+
+{lines.map((line) => (
+  <span class="reveal-line only-desktop" style="display: block; overflow: hidden; white-space: normal;">
+    <span style="display: inline-block; white-space: pre-wrap; word-break: break-word;">{line}</span>
+  </span>
+))}
+{mobile && <p class="anim-sec only-mobile">{lines.join(" ")}</p>}

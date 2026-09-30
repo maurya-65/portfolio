@@ -1,40 +1,72 @@
 ---
-import { about, site } from "../data/site";
-import Letters from "./Letters.astro";
+import { site, about } from "../data/site";
+import Arrow from "./Arrow.astro";
+import Split from "./Split.astro";
+import Lines from "./Lines.astro";
 ---
 
-<section id="about" class="about-title" aria-label="About me">
-  <h2 class="about-heading"><Letters text="About me" /></h2>
-</section>
-
-<section class="about">
-  <div class="about-bar">
-    <span class="about-index">{about.index}</span>
-    <span class="about-label">{about.label}</span>
-    <span class="about-code">{about.code}</span>
-  </div>
-
-  <p class="statement" aria-label={about.statement.map((line) => line.join("")).join(" ")}>
-    {about.statement.map(([stay, drift]) => (
-      <span class="statement-line" aria-hidden="true">{stay}<span class="drift">{[...drift].map((c) => <span class="drift-ch">{c}</span>)}</span></span>
-    ))}
-  </p>
-
-  <div class="about-body">
-    <div class="about-hello">
-      <p>{about.greeting}</p>
-      <p>I'm {site.firstName} {site.lastName}</p>
+<section class="about" id="about">
+  <Split text="about me" class="about-title" />
+  <div class="about__wrapper">
+    <div class="container">
+      <div class="about-first__wrapper">
+        <div class="about-first-top">
+          <p><span>{about.index}</span></p>
+          <p><span>{about.label}</span></p>
+          <p><span>{about.code}</span></p>
+        </div>
+        <div class="about-first-middle">
+          <div
+            class="canvas-text"
+            data-lines={JSON.stringify(about.statement)}
+            aria-label={about.statement.map((line) => line.text).join(" ")}
+          >
+            <div class="canvas-text__bg"></div>
+          </div>
+        </div>
+      </div>
+      <div class="about-second__wrapper">
+        <div class="about-second__top">
+          <h4><span>about me</span></h4>
+          <div class="about-second-text text-first">
+            <div class="text-first__img"><img src={site.portrait} alt={`${site.firstName} ${site.lastName}`} /></div>
+            <p class="text-first__text">
+              <span class="text-first__text-wrapper"><span>{about.greeting}</span></span>
+              <span class="text-first__text-wrapper"><span>{about.intro}</span></span>
+            </p>
+          </div>
+          <div class="about-second-text text-second">
+            <h3>{about.experienceTitle}<Arrow stroke="#aaaaaa" /></h3>
+            <div class="text-second__text">
+              {about.experience.map((line) => <span class="text-second__text-wrapper only-desktop"><span>{line}</span></span>)}
+              <p class="about-mobile-text only-mobile">{about.experience.join(" ")}</p>
+            </div>
+          </div>
+        </div>
+        <div class="about-second-title">
+          <h2>{about.title[0]}<br />{about.title[1]}<br />{about.title[2]}</h2>
+        </div>
+        <div class="about-second-text text-first abs-t">
+          <Lines lines={about.how} />
+        </div>
+        <div class="about-second-text text-second ast-s">
+          <h3>{about.philosophyTitle}<Arrow stroke="#aaaaaa" /></h3>
+          <Lines lines={about.philosophy} />
+        </div>
+        <div class="about-second-text text-third">
+          <div class="text-third__wrapper">
+            {about.photos.map((photo) => <div class="text-third__img only-desktop"><img src={photo} alt="" /></div>)}
+            <div class="text-third__title">
+              <h3>{about.lifestyleTitle}<Arrow stroke="#aaaaaa" /></h3>
+              <Lines lines={about.lifestyle} />
+            </div>
+          </div>
+        </div>
+        <div class="about-second-text text-four only-desktop">
+          <a href="#footer" class="link-line about-link" data-anchor="footer">{about.connect}<Arrow stroke="#aaaaaa" /></a>
+          <p><Lines lines={about.wish} mobile={false} /></p>
+        </div>
+      </div>
     </div>
-    <div class="about-blocks">
-      {about.blocks.map((block) => (
-        <article class="about-block">
-          <h3>{block.title} <i aria-hidden="true">↘</i></h3>
-          {block.lead && <p class="about-lead">{block.lead}</p>}
-          <p class="about-text">{block.body}</p>
-        </article>
-      ))}
-    </div>
   </div>
-
-  <a class="about-connect" href="#contact">{about.connect} <i aria-hidden="true">↘</i></a>
 </section>

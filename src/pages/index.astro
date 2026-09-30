@@ -1,26 +1,35 @@
 ---
 import Base from "../layouts/Base.astro";
 import EarthIntro from "../components/EarthIntro.astro";
+import Header from "../components/Header.astro";
 import Hero from "../components/Hero.astro";
 import About from "../components/About.astro";
 import Works from "../components/Works.astro";
 import LaptopShowcase from "../components/LaptopShowcase.astro";
 import Services from "../components/Services.astro";
-import Achievements from "../components/Achievements.astro";
+import Education from "../components/Education.astro";
 import Contact from "../components/Contact.astro";
 import Footer from "../components/Footer.astro";
 ---
 
 <Base>
   <EarthIntro />
-  <div class="site">
-    <Hero />
-    <About />
-    <Works />
-    <LaptopShowcase />
-    <Services />
-    <Achievements />
-    <Contact />
-    <Footer />
+  <div class="App">
+    <div class="scroll-container">
+      <Header />
+      <!-- The site class is what covers the Earth intro once it has played. -->
+      <div class="site" id="home">
+        <Hero />
+        <div class="dark-zone">
+          <About />
+          <Works />
+        </div>
+        <LaptopShowcase />
+        <Services />
+        <Education />
+        <Contact />
+        <Footer />
+      </div>
+    </div>
   </div>
 </Base>

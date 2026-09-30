@@ -1,0 +1,18 @@
+---
+// olha's diagonal arrow, drawn on a 21 x 21 grid. The colour comes from the stylesheet unless one is given.
+interface Props {
+  size?: number;
+  stroke?: string;
+}
+
+const { size = 21, stroke } = Astro.props;
+---
+
+<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 21 21" fill="none">
+  <path
+    d="M1.81213 19.1203L19.4395 1.43779M5.76584 1.24781L19.6484 1.2279L19.6922 15.1104"
+    stroke={stroke}
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"></path>
+</svg>

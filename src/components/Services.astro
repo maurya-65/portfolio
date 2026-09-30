@@ -1,18 +1,29 @@
 ---
 import { services } from "../data/site";
-import Letters from "./Letters.astro";
+import Split from "./Split.astro";
 ---
 
-<section id="services" class="services">
-  <h2 class="services-title"><Letters text={services.title} /></h2>
-  <div class="service-grid">
-    {services.items.map((service, index) => (
-      <article class="service">
-        <span class="service-no">00-{index + 1}</span>
-        <h3 class="roll"><span class="roll-in" data-text={service.title}>{service.title}</span></h3>
-        <p>{service.text}</p>
-      </article>
+<section class="services" id="services">
+  <div class="container">
+    <div class="services__title">
+      <Split text={services.title} />
+      <div class="services__title-span"><span>{services.code}</span></div>
+    </div>
+  </div>
+  <div class="services__wrapper">
+    {services.items.map((item, index) => (
+      <div class="services-block">
+        <h4 class="services-block__number">{`00-${index + 1}`}</h4>
+        <h3 class="services-block__title"><span>{item.title}</span></h3>
+        <h3 class="services-block__second-title"><span><span>//</span> {item.title}</span></h3>
+        <div class="services-block__second-middle">
+          <ul class="services-block__list">
+            {item.list.map((line) => <li><span>/ {line}</span></li>)}
+          </ul>
+          <div class="services-block__img"><img src={item.image} alt={item.title} loading="lazy" /></div>
+        </div>
+        <p class="services-block__text">{item.text}</p>
+      </div>
     ))}
   </div>
-  <span class="services-code">{services.code}</span>
 </section>

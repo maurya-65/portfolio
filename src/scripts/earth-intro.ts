@@ -286,6 +286,8 @@ async function init(intro: HTMLElement) {
       end: "+=450%",
       pin: stage,
       scrub: 0.4,
+      // Created after the page's other triggers, so without this its pin spacing is never counted in them.
+      refreshPriority: 2,
       onToggle: (self) => {
         active = self.isActive || self.progress < 1;
       },

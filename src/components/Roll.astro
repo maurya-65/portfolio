@@ -1,0 +1,25 @@
+---
+// olha's bracket link: every letter exists twice (original and clone) and rolls up on hover.
+// A link with an `anchor` scrolls to that section id instead of navigating.
+interface Props {
+  text: string;
+  href?: string;
+  anchor?: string;
+  target?: string;
+  class?: string;
+}
+
+const { text, href = "#", anchor, target, class: extra = "" } = Astro.props;
+const letters = [...text].map((char) => (char === " " ? " " : char));
+---
+
+<a
+  class={`link ${extra}`.trim()}
+  href={anchor ? `#${anchor}` : href}
+  target={target}
+  rel={target === "_blank" ? "noopener noreferrer" : undefined}
+  data-anchor={anchor}
+>
+  <span class="original">{letters.map((char) => <span>{char}</span>)}</span>
+  <span class="clone" aria-hidden="true">{letters.map((char) => <span>{char}</span>)}</span>
+</a>

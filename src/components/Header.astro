@@ -1,18 +1,45 @@
 ---
 import { site, nav } from "../data/site";
+import Roll from "./Roll.astro";
+import Arrow from "./Arrow.astro";
 ---
 
 <header class="header">
-  <a class="logo" href="#top">
-    <span>{site.firstName}</span>
-    <span>{site.lastName}</span>
-  </a>
-  <nav class="nav" aria-label="Main">
-    {nav.map((link) => (
-      <a href={link.href}>
-        <span aria-hidden="true">[</span> {link.label} <span aria-hidden="true">]</span>
-      </a>
-    ))}
-  </nav>
-  <a class="header-contact" href="#contact">Contact me <span aria-hidden="true">↗</span></a>
+  <div class="container">
+    <div class="header__wrapper">
+      <a class="header-logo" href="#home" data-anchor="top">{site.firstName.toLowerCase()} {site.lastName.toLowerCase()}</a>
+      <nav class="header__menu">
+        <ul>
+          {nav.map((item) => <li><Roll text={item.label} anchor={item.id} /></li>)}
+        </ul>
+        <div class="header__menu-mobile">
+          <div class="kyiv-clock" data-clock={site.location.timeZone} data-place={site.basedIn.toLowerCase()}>
+            <h2>{site.basedIn.toLowerCase()}, canada:</h2>
+            <p data-clock-time></p>
+          </div>
+          <div class="header__menu-behance">
+            <a href={site.github} class="link" target="_blank" rel="noopener noreferrer">github</a>
+            <a href={site.linkedin} class="link" target="_blank" rel="noopener noreferrer">linkedin</a>
+            <a href={site.resume} class="link">resume</a>
+          </div>
+          <a href={`tel:${site.phoneHref}`} class="header__menu-phone">{site.phone}</a>
+          <a href={`mailto:${site.email}`} class="header__menu-mail">{site.email}</a>
+          <div class="header__menu-socials">
+            <a href={site.instagram} target="_blank" rel="noopener noreferrer">instagram</a>
+            <a href={site.github} target="_blank" rel="noopener noreferrer">github</a>
+            <a href={site.linkedin} target="_blank" rel="noopener noreferrer">linkedin</a>
+          </div>
+          <div class="header__menu-reserved">
+            <p>© All rights reserved.<br />{site.year} {site.firstName}{site.lastName}</p>
+            <a href={site.github} target="_blank" rel="noopener noreferrer">dev - MO</a>
+          </div>
+        </div>
+      </nav>
+      <div class="burger" role="button" tabindex="0" aria-label="Menu">
+        <span>menu</span>
+        <span class="close"><span>close</span></span>
+      </div>
+      <a href="#footer" class="header-contact link-line" data-anchor="footer">contact me<Arrow stroke="rgb(239, 239, 239)" /></a>
+    </div>
+  </div>
 </header>

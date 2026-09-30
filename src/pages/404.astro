@@ -1,15 +1,17 @@
 ---
 import Base from "../layouts/Base.astro";
+import Roll from "../components/Roll.astro";
 ---
 
 <Base title="Page not found">
-  <section class="hero">
-    <h1 class="hero-title">
-      <span class="line"><span class="line-inner">404</span></span>
-    </h1>
-    <div class="hero-foot">
-      <p>This page has negative aura.</p>
-      <a class="button" href="/">Back home</a>
+  <section class="not-found">
+    <div class="container">
+      <div class="not-found__wrapper">
+        <h2>This page has paused</h2>
+        <p>Perhaps it got lost on the way here</p>
+        <h3>Try starting again</h3>
+        <Roll text="return home" href="/" />
+      </div>
     </div>
   </section>
 </Base>

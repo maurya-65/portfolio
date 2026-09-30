@@ -1,0 +1,231 @@
+/* Everything that is not olha's stylesheet: the starfield and Earth intro (kept from before), the laptop
+   section, and the few overrides the Earth intro and the mobile layout need. Values are in px because
+   olha's stylesheet turns 1rem into about a pixel. */
+
+:root {
+  --page: #f7f7f7;
+  --ink: #101010;
+  --night: #000;
+  --night-ink: #f0f0f0;
+  --night-soft: #a6a6a6;
+  --display: "Sofia Sans Condensed", "Arial Narrow", sans-serif;
+  --mono: "Spline Sans Mono", ui-monospace, monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+body { background: #050608; }
+
+/* The starfield sits behind the Earth intro only; the site covers it once it takes over. */
+.space {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Earth intro */
+
+.earth-stage {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.earth-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fades over the land at the very end, so the site arrives on its own background. */
+.earth-veil {
+  position: absolute;
+  inset: 0;
+  background: var(--page);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.earth-hint {
+  position: absolute;
+  inset: auto 0 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #a3a3a8;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.earth-hint i {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(currentColor, transparent);
+  animation: hint 2.2s var(--ease) infinite;
+}
+
+@keyframes hint {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  50% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  51% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+
+/* The site: everything after the Earth intro sits on the page colour */
+
+.site {
+  position: relative;
+  background: var(--page);
+  overflow-x: clip;
+}
+
+/* olha fades main and the links in when its loader ends. Here the Earth intro is the loader, so the page is
+   already visible below it; only the nav waits until the intro has played. */
+main { opacity: 1; }
+a { pointer-events: auto; }
+.header { opacity: 1; pointer-events: auto; transition: opacity 0.5s var(--ease); }
+body:has(.earth-intro):not(.intro-done) .header { opacity: 0; pointer-events: none; }
+
+/* olha scrolls an inner container on phones; the Earth intro needs the window to scroll, so it always does. */
+@media (max-width: 1100px) {
+  body, html { overflow: visible; overflow-x: hidden; }
+  .scroll-container { height: auto; overflow: visible; }
+}
+
+/* The footer name is 13 letters, not olha's 14, and its gap is after the 6th letter, not the 4th. */
+.footer .footer-title span:nth-child(5) { margin: 0; }
+.footer .footer-title span:nth-child(7) { margin: 0 20rem; }
+.footer .footer-reserved__dev::after { content: "Maurya Oganja"; }
+
+/* Laptop (a black band after the works, and the one section olha does not have) */
+
+.laptop {
+  background: var(--night);
+  color: var(--night-ink);
+  padding: 112px 48px;
+  font-family: var(--mono);
+  font-weight: 300;
+  position: relative;
+  z-index: 1;
+}
+
+.laptop h2, .laptop h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 0.9;
+}
+
+.laptop-title {
+  margin-bottom: 64px;
+  font-size: clamp(48px, 8vw, 112px);
+  letter-spacing: -0.06em;
+}
+
+.laptop-layout {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 48px 24px;
+  align-items: center;
+}
+
+.laptop-stage {
+  position: relative;
+  grid-column: 1 / 9;
+  aspect-ratio: 16 / 11;
+  background: radial-gradient(60% 55% at 50% 58%, rgb(120 140 255 / 0.16), transparent 70%);
+}
+
+.laptop-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.laptop-canvas.is-dragging { cursor: grabbing; }
+
+.laptop-toggle {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 10px 20px;
+  border: 1px solid var(--night-ink);
+  background: transparent;
+  color: var(--night-ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+}
+
+.laptop-toggle:hover {
+  background: var(--night-ink);
+  color: var(--night);
+}
+
+.laptop-copy { grid-column: 9 / -1; }
+
+.laptop-copy h3 {
+  margin-bottom: 20px;
+  font-size: clamp(32px, 3.6vw, 56px);
+}
+
+.laptop-copy p {
+  max-width: 448px;
+  color: var(--night-soft);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.specs { display: grid; gap: 20px; margin: 40px 0 0; }
+.specs dt { color: var(--night-soft); font-size: 13px; text-transform: uppercase; }
+.specs dd {
+  margin: 2px 0 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1023px) {
+  .laptop { padding: 80px 20px; }
+  .laptop-stage, .laptop-copy { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  .earth-hint i { animation: none; }
+}
+
+/* olha renders some about text differently on a phone, decided in script; here it is decided in CSS. */
+.only-mobile { display: none; }
+@media (max-width: 1100px) {
+  .only-desktop { display: none !important; }
+  .only-mobile { display: block; }
+}
+
+.footer .footer-title span { font-size: 330rem; }

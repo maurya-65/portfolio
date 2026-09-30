@@ -1,30 +1,17 @@
 ---
 import { projects } from "../data/site";
-import Letters from "./Letters.astro";
+import Split from "./Split.astro";
+import Roll from "./Roll.astro";
 ---
 
-<section id="works" class="works">
-  <h2 class="works-title"><Letters text="Recent projects" /></h2>
-  <div class="works-list">
-    {projects.map((project, index) => (
-      <a class:list={["work", index % 2 ? "is-right" : "is-left"]} href={project.href}>
-        <div class="work-media">
-          <img
-            src={project.image}
-            alt={`${project.title} preview`}
-            width={project.width}
-            height={project.height}
-            loading="lazy"
-          />
-        </div>
-        <h3>{project.title}</h3>
-        <ul>
-          {project.lines.map((line) => <li>{line}</li>)}
-        </ul>
-      </a>
-    ))}
+<section class="projects" id="works">
+  <Split text={projects.title} class="projects__title title" />
+  <div class="projects-canvas" data-slides={JSON.stringify(projects.slides)}>
+    <div class="projects-stage" style="position: relative; width: 100%; height: 100%; overflow: hidden;">
+      <canvas class="projects-gl" style="display: block; width: 100%; height: 100%;" aria-label="Interactive 3D slider of recent projects"></canvas>
+    </div>
+    <div class="projects-tip" style="position: fixed; left: 0; top: 0; pointer-events: none; background: #101010; color: #fff; padding: 4rem 20rem; border-radius: 3rem; font-size: 12rem; white-space: nowrap; z-index: 9999; clip-path: inset(0 100% 0 0);">Swipe</div>
+    <div class="projects-canvas__swipe">Swipe slider</div>
+    <Roll text={projects.link} href={projects.slides[0].href} />
   </div>
-  <a class="works-3d roll" href="#laptop">
-    <span class="roll-in" data-text="[ My setup ]">[ My setup ]</span>
-  </a>
 </section>

@@ -1,0 +1,39 @@
+---
+import { education, site } from "../data/site";
+import Split from "./Split.astro";
+import Arrow from "./Arrow.astro";
+---
+
+<section class="awards">
+  <div class="container">
+    <div class="awards__title">
+      <Split text={education.title} />
+      <div class="awards__title-span"><span>{education.code}</span></div>
+    </div>
+    <div class="awards__text">
+      <p>{education.lead[0]}<br />{education.lead[1]}<br /><span>{education.lead[2]}</span></p>
+      <p><span>{education.note[0]}</span> <br />{education.note[1]} <br />{education.note[2]}</p>
+    </div>
+    <div class="awards-wrap">
+      <div class="awards-preview" aria-hidden="true">
+        <div class="awards-preview__wrap"></div>
+      </div>
+      <div class="awards__blocks">
+        {education.items.map((item) => (
+          <div class="awards-block link-line">
+            <div class="awards-block__title">
+              <h3>{item.name}<span>{item.count}</span></h3>
+              <Arrow size={18} stroke="#101010" />
+            </div>
+            <div class="awards-block__img">
+              <div class="awards-block__img-wrap">
+                {item.images.map((src) => <div class="awards-block__img-picture"><img src={src} alt="" loading="lazy" /></div>)}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="awards-article">{education.article.label} <a href={site.github} target="_blank" class="link-line" rel="noreferrer">{education.article.link}</a></div>
+  </div>
+</section>

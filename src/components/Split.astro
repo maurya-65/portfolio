@@ -1,0 +1,14 @@
+---
+// Section headings: olha splits them into words of `.letter` spans at runtime; doing it here keeps the
+// heading readable without scripts. Words keep their own inline-block box, and a space sits between them.
+interface Props {
+  text: string;
+  class?: string;
+  tag?: "h2" | "h3";
+}
+
+const { text, class: extra = "", tag: Tag = "h2" } = Astro.props;
+const words = text.split(" ");
+---
+
+<Tag class={`animation-title ${extra}`.trim()} data-animated="true" aria-label={text}>{words.map((word, index) => (<Fragment><span style="display: inline-block;" aria-hidden="true">{[...word].map((char) => <span class="letter">{char}</span>)}</span>{index < words.length - 1 ? " " : null}</Fragment>))}</Tag>

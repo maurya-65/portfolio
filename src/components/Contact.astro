@@ -1,0 +1,37 @@
+---
+import { site, contact } from "../data/site";
+import Letters from "./Letters.astro";
+
+const [lineA, lineB] = contact.headline;
+---
+
+<section id="contact" class="contact">
+  <p class="contact-kicker">{contact.kicker}</p>
+  <h2 class="contact-title">
+    <span class="contact-line"><Letters text={lineA} /></span>
+    <span class="contact-between">{contact.between}</span>
+    <span class="contact-line contact-line-react"><Letters text={lineB} /></span>
+  </h2>
+
+  <form class="contact-form" data-mailto={site.email}>
+    <label><span>Your name*</span><input name="name" required autocomplete="name" /></label>
+    <label><span>Phone*</span><input name="phone" type="tel" required autocomplete="tel" /></label>
+    <label><span>Your email*</span><input name="email" type="email" required autocomplete="email" /></label>
+    <label><span>Your message</span><textarea name="message" rows="2"></textarea></label>
+
+    <fieldset class="budget">
+      <legend>{contact.legend}</legend>
+      {contact.topics.map((topic, index) => (
+        <label>
+          <input type="radio" name="topic" value={topic} checked={index === 0} />
+          <span>{topic}</span>
+        </label>
+      ))}
+    </fieldset>
+
+    <button type="submit" class="contact-submit">
+      <span>{contact.submit}</span>
+      <i aria-hidden="true">→</i>
+    </button>
+  </form>
+</section>

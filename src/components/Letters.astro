@@ -1,0 +1,19 @@
+---
+// Splits text into masked letters so the page script can slide them up one by one.
+interface Props {
+  text: string;
+  class?: string;
+}
+
+const { text, class: className } = Astro.props;
+---
+
+<span class:list={["letters", className]} aria-label={text}>
+  {[...text].map((char) =>
+    char === " " ? (
+      <span class="ch-space" aria-hidden="true"></span>
+    ) : (
+      <span class="ch" aria-hidden="true"><span class="ch-in">{char}</span></span>
+    ),
+  )}
+</span>

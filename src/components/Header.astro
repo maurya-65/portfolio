@@ -1,0 +1,18 @@
+---
+import { site, nav } from "../data/site";
+---
+
+<header class="header">
+  <a class="logo" href="#top">
+    <span>{site.firstName}</span>
+    <span>{site.lastName}</span>
+  </a>
+  <nav class="nav" aria-label="Main">
+    {nav.map((link) => (
+      <a href={link.href}>
+        <span aria-hidden="true">[</span> {link.label} <span aria-hidden="true">]</span>
+      </a>
+    ))}
+  </nav>
+  <a class="header-contact" href="#contact">Contact me <span aria-hidden="true">↗</span></a>
+</header>

@@ -1,0 +1,8 @@
+node_modules
+dist
+.astro
+
+# design skills installed by npx skills (local tooling)
+.agents
+.claude/skills
+skills-lock.json

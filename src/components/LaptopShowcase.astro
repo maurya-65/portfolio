@@ -1,0 +1,29 @@
+---
+import { laptop } from "../data/site";
+---
+
+<section id="laptop" class="section laptop">
+  <h2 class="section-title">My setup</h2>
+  <div class="laptop-layout">
+    <div class="laptop-stage" data-screen={JSON.stringify(laptop.screen)}>
+      <canvas
+        class="laptop-canvas"
+        role="img"
+        aria-label={`Interactive 3D model of a ${laptop.name}. Hover to open the lid and drag to rotate it.`}
+      ></canvas>
+      <button class="laptop-toggle" type="button" aria-pressed="false">Open lid</button>
+    </div>
+    <div class="laptop-copy">
+      <h3>{laptop.name}</h3>
+      <p>{laptop.note}</p>
+      <dl class="specs">
+        {laptop.specs.map((spec) => (
+          <div>
+            <dt>{spec.label}</dt>
+            <dd>{spec.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </div>
+</section>

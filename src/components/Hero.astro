@@ -1,0 +1,33 @@
+---
+import { site, hero } from "../data/site";
+import Letters from "./Letters.astro";
+
+const [first, second] = site.roleWords;
+---
+
+<section id="top" class="hero">
+  <h1 class="hero-title" aria-label={site.role}>
+    <span class="hero-line"><Letters text={first} /></span>
+    <span class="hero-gap"> </span>
+    <span class="hero-line"><Letters text={second} /></span>
+  </h1>
+  <p class="hero-based">{site.basedIn}</p>
+
+  <!-- The reference has a portrait standing in this box. Drop an <img> in here later. -->
+  <div class="hero-panel">
+    <ul class="hero-tags">
+      {hero.tags.map((tag) => <li>/ {tag}</li>)}
+    </ul>
+  </div>
+
+  <p class="hero-blurb">{hero.blurb}</p>
+
+  <a class="hero-float hero-float-right" href="#works">
+    <span>Recent work <i aria-hidden="true">↘</i></span>
+    <strong>{hero.recentWork}</strong>
+  </a>
+  <div class="hero-float hero-float-left">
+    <span>{site.availability}</span>
+    <a href={`mailto:${site.email}`}>{site.email}</a>
+  </div>
+</section>

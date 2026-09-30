@@ -1,0 +1,18 @@
+---
+import { services } from "../data/site";
+import Letters from "./Letters.astro";
+---
+
+<section id="services" class="services">
+  <h2 class="services-title"><Letters text={services.title} /></h2>
+  <div class="service-grid">
+    {services.items.map((service, index) => (
+      <article class="service">
+        <span class="service-no">00-{index + 1}</span>
+        <h3 class="roll"><span class="roll-in" data-text={service.title}>{service.title}</span></h3>
+        <p>{service.text}</p>
+      </article>
+    ))}
+  </div>
+  <span class="services-code">{services.code}</span>
+</section>

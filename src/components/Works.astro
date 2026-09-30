@@ -1,0 +1,30 @@
+---
+import { projects } from "../data/site";
+import Letters from "./Letters.astro";
+---
+
+<section id="works" class="works">
+  <h2 class="works-title"><Letters text="Recent projects" /></h2>
+  <div class="works-list">
+    {projects.map((project, index) => (
+      <a class:list={["work", index % 2 ? "is-right" : "is-left"]} href={project.href}>
+        <div class="work-media">
+          <img
+            src={project.image}
+            alt={`${project.title} preview`}
+            width={project.width}
+            height={project.height}
+            loading="lazy"
+          />
+        </div>
+        <h3>{project.title}</h3>
+        <ul>
+          {project.lines.map((line) => <li>{line}</li>)}
+        </ul>
+      </a>
+    ))}
+  </div>
+  <a class="works-3d roll" href="#laptop">
+    <span class="roll-in" data-text="[ My setup ]">[ My setup ]</span>
+  </a>
+</section>

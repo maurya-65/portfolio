@@ -1,0 +1,40 @@
+---
+import { about, site } from "../data/site";
+import Letters from "./Letters.astro";
+---
+
+<section id="about" class="about-title" aria-label="About me">
+  <h2 class="about-heading"><Letters text="About me" /></h2>
+</section>
+
+<section class="about">
+  <div class="about-bar">
+    <span class="about-index">{about.index}</span>
+    <span class="about-label">{about.label}</span>
+    <span class="about-code">{about.code}</span>
+  </div>
+
+  <p class="statement" aria-label={about.statement.map((line) => line.join("")).join(" ")}>
+    {about.statement.map(([stay, drift]) => (
+      <span class="statement-line" aria-hidden="true">{stay}<span class="drift">{[...drift].map((c) => <span class="drift-ch">{c}</span>)}</span></span>
+    ))}
+  </p>
+
+  <div class="about-body">
+    <div class="about-hello">
+      <p>{about.greeting}</p>
+      <p>I'm {site.firstName} {site.lastName}</p>
+    </div>
+    <div class="about-blocks">
+      {about.blocks.map((block) => (
+        <article class="about-block">
+          <h3>{block.title} <i aria-hidden="true">↘</i></h3>
+          {block.lead && <p class="about-lead">{block.lead}</p>}
+          <p class="about-text">{block.body}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <a class="about-connect" href="#contact">{about.connect} <i aria-hidden="true">↘</i></a>
+</section>

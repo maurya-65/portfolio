@@ -145,23 +145,18 @@ async function init(intro: HTMLElement) {
     return texture;
   };
 
-  // The small textures make the first frame instant; the sharp ones swap in later.
+  // Only the small base map blocks the first frame. Everything else streams in after it.
   const loader = new THREE.TextureLoader();
-  let map: THREE.Texture, specular: THREE.Texture, clouds: THREE.Texture, lights: THREE.Texture;
+  let map: THREE.Texture;
   try {
-    [map, specular, clouds, lights] = await Promise.all([
-      loader.loadAsync(`${TEXTURES}/blue-marble-2k.jpg`),
-      loader.loadAsync(`${TEXTURES}/earth_specular_2048.jpg`),
-      loader.loadAsync(`${TEXTURES}/earth_clouds_1024.png`),
-      loader.loadAsync(`${TEXTURES}/night-lights-4k.jpg`),
-    ]);
+    map = await loader.loadAsync(`${TEXTURES}/blue-marble-2k.webp`);
   } catch {
     intro.remove();
     return;
   }
   prepare(map);
-  prepare(lights);
-  clouds.colorSpace = THREE.SRGBColorSpace;
+  // Filled in below, once they arrive.
+  let specular: THREE.Texture | undefined;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.05, 100);
@@ -176,14 +171,12 @@ async function init(intro: HTMLElement) {
   const globe = new THREE.Group();
   const earthMaterial = new THREE.MeshPhongMaterial({
     map,
-    specularMap: specular,
     specular: new THREE.Color(0x333333),
     shininess: 14,
     emissive: new THREE.Color(0xffffff),
-    emissiveMap: lights,
   });
   const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 128), earthMaterial);
-  const cloudMaterial = new THREE.MeshPhongMaterial({ map: clouds, transparent: true, opacity: 0.55, depthWrite: false });
+  const cloudMaterial = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0.55, depthWrite: false });
   const cloudLayer = new THREE.Mesh(new THREE.SphereGeometry(1.008, 96, 96), cloudMaterial);
   cloudLayer.renderOrder = 2;
   const halo = new THREE.Mesh(new THREE.SphereGeometry(1.12, 64, 64), atmosphere);
@@ -263,7 +256,7 @@ async function init(intro: HTMLElement) {
     halo.visible = distance > 1.5;
     // Clouds are a low-res layer, so they thin out as the camera gets close.
     cloudMaterial.opacity = 0.55 * THREE.MathUtils.clamp((distance - 1.8) / 1.2, 0, 1);
-    cloudLayer.visible = cloudMaterial.opacity > 0.01;
+    cloudLayer.visible = !!cloudMaterial.map && cloudMaterial.opacity > 0.01;
 
     marker.visible = now.blink > 0.01;
     dot.scale.setScalar(1 + 0.25 * Math.sin(time * 5));
@@ -309,23 +302,42 @@ async function init(intro: HTMLElement) {
   // The pin pushes everything below it down, so the other triggers need new positions.
   ScrollTrigger.refresh();
 
-  // Sharper imagery arrives in the background while the visitor reads the first line.
-  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-  const maxSize = renderer.capabilities.maxTextureSize;
-  if (saveData || maxSize < 8192) return;
+  // Everything else arrives in the background, after the first frame has been painted.
+  const later = (task: () => Promise<void>) =>
+    new Promise<void>((resolve) => {
+      const run = () => task().catch(() => {}).then(resolve);
+      "requestIdleCallback" in window ? requestIdleCallback(run, { timeout: 1500 }) : setTimeout(run, 300);
+    });
 
-  try {
-    const sharp = prepare(await loader.loadAsync(`${TEXTURES}/blue-marble-8k.jpg`));
+  await later(async () => {
+    const [spec, clouds, lights] = await Promise.all([
+      loader.loadAsync(`${TEXTURES}/earth_specular_1024.webp`),
+      loader.loadAsync(`${TEXTURES}/earth_clouds_1024.webp`),
+      loader.loadAsync(`${TEXTURES}/night-lights-2k.webp`),
+    ]);
+    specular = spec;
+    clouds.colorSpace = THREE.SRGBColorSpace;
+    earthMaterial.specularMap = spec;
+    earthMaterial.emissiveMap = prepare(lights);
+    earthMaterial.needsUpdate = true;
+    cloudMaterial.map = clouds;
+    cloudMaterial.needsUpdate = true;
+  });
+
+  // The sharp imagery is big, so skip it on data saver or small GPUs.
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  if (saveData || renderer.capabilities.maxTextureSize < 8192 || !specular) return;
+
+  await later(async () => {
+    const sharp = prepare(await loader.loadAsync(`${TEXTURES}/blue-marble-8k.webp`));
     earthMaterial.map = sharp;
     earthMaterial.needsUpdate = true;
     map.dispose();
 
-    patch = createPatch(prepare(await loader.loadAsync(`${TEXTURES}/atlantic-canada.jpg`)), specular);
+    patch = createPatch(prepare(await loader.loadAsync(`${TEXTURES}/atlantic-canada.webp`)), specular!);
     patch.visible = false;
     globe.add(patch);
-  } catch {
-    // The 2k globe is still fine on its own.
-  }
+  });
 }
 
 const intro = document.querySelector<HTMLElement>(".earth-intro");

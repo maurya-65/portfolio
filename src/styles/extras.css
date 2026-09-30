@@ -280,3 +280,83 @@ body { background: #050608; }
 .loader .loader-counter > span { font: inherit; letter-spacing: inherit; }
 .loader .loader-counter { font-size: 26rem; }
 @media (max-width: 1100px) { .loader .loader-counter { font-size: 18px; } }
+
+/* The Works computer: the monitor's screen turns into a small login and desktop (see scripts/pc.ts). It is plain
+   CSS on purpose: no blur, no shadows and no images, so it stays light without a graphics card. */
+.pc { background: #0d0d0d; color: #f7f7f7; display: none; font-family: "Spline Sans Mono", monospace; font-size: 13px; height: 600px; left: 0; opacity: 0; overflow: hidden; pointer-events: none; position: absolute; top: 0; transform-origin: 0 0; transition: opacity 0.5s var(--ease); width: 1040px; z-index: 5; }
+@media (min-width: 1101px) { .pc { display: block; } }
+.pc.is-on { opacity: 1; pointer-events: auto; }
+.pc button { color: inherit; cursor: pointer; font: inherit; }
+.pc-desktop, .pc-login { inset: 0; position: absolute; }
+.pc-desktop { background-color: #0d0d0d; background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px); background-size: 40px 40px; }
+
+/* Login */
+.pc-login { align-items: center; background: #101010; display: flex; flex-direction: column; justify-content: center; transition: opacity 0.4s var(--ease); z-index: 3000; }
+.pc.is-in .pc-login { opacity: 0; pointer-events: none; }
+.pc-login__clock { font-family: "Sofia Sans Condensed"; font-size: 96px; font-weight: 700; line-height: 0.9; }
+.pc-login__date { color: #9a9a9a; font-size: 13px; letter-spacing: 1px; margin: 8px 0 34px; text-transform: uppercase; }
+.pc-login__avatar { align-items: center; border: 1px solid #f7f7f7; display: flex; font-family: "Sofia Sans Condensed"; font-size: 40px; font-weight: 700; height: 84px; justify-content: center; width: 84px; }
+.pc-login__label { align-items: center; display: flex; flex-direction: column; gap: 8px; margin-top: 18px; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+.pc-login__input { background: transparent; border: 0; border-bottom: 1px solid #f7f7f7; caret-color: #f7f7f7; color: inherit; font: inherit; font-size: 15px; outline: 0; padding: 8px 4px; text-align: center; width: 240px; }
+.pc-login__input::placeholder { color: #666; }
+.pc-login__note { color: #9a9a9a; font-size: 12px; height: 18px; margin-top: 14px; }
+.pc-login__note.is-error { color: #ff8a8a; }
+.pc-login.is-shaking { animation: pc-shake 0.35s; }
+@keyframes pc-shake { 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
+
+/* Desktop */
+.pc-icons { display: flex; flex-direction: column; gap: 16px; left: 18px; position: absolute; top: 18px; }
+.pc-icon { align-items: center; display: flex; flex-direction: column; gap: 6px; width: 74px; }
+.pc-icon:focus-visible, .pc-icon:hover { outline: 1px dashed #777; outline-offset: 3px; }
+.pc-icon__glyph { align-items: center; border: 1px solid #f7f7f7; display: flex; font-size: 18px; height: 42px; justify-content: center; width: 42px; }
+.pc-icon__label { font-size: 11px; text-transform: uppercase; }
+.pc-windows { inset: 0 0 36px 0; overflow: hidden; position: absolute; }
+
+/* Taskbar, Start menu */
+.pc-taskbar { align-items: stretch; background: #101010; border-top: 1px solid #f7f7f7; bottom: 0; display: flex; gap: 6px; height: 36px; left: 0; padding: 4px 6px; position: absolute; width: 100%; z-index: 2000; }
+.pc-start { background: #f7f7f7; color: #101010 !important; font-size: 12px; letter-spacing: 1px; padding: 0 14px; text-transform: uppercase; }
+.pc-tasks { align-items: stretch; display: flex; flex: 1; gap: 4px; min-width: 0; overflow: hidden; }
+.pc-task { border: 1px solid #444; font-size: 11px; max-width: 150px; overflow: hidden; padding: 0 10px; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.pc-task.is-active { background: #2a2a2a; border-color: #f7f7f7; }
+.pc-clock { align-self: center; font-size: 11px; letter-spacing: 1px; padding: 0 8px; }
+.pc-menu { background: #101010; border: 1px solid #f7f7f7; bottom: 36px; display: none; left: 0; min-width: 190px; position: absolute; z-index: 2500; }
+.pc-menu.is-open { display: block; }
+.pc-menu__item { align-items: center; display: flex; font-size: 12px; gap: 12px; padding: 10px 14px; text-align: left; text-transform: uppercase; width: 100%; }
+.pc-menu__item:hover { background: #f7f7f7; color: #101010 !important; }
+.pc-menu__item--out { border-top: 1px solid #333; }
+.pc-menu__glyph { text-align: center; width: 18px; }
+
+/* Windows */
+.pc-window { background: #101010; border: 1px solid #f7f7f7; display: flex; flex-direction: column; opacity: 0.94; position: absolute; }
+.pc-window[hidden] { display: none; }
+.pc-window.is-focused { opacity: 1; }
+.pc-window.is-maximized { height: 100% !important; left: 0 !important; top: 0 !important; width: 100% !important; }
+.pc-window__head { align-items: center; background: #f7f7f7; color: #101010; cursor: grab; display: flex; flex: none; height: 26px; justify-content: space-between; padding-left: 10px; touch-action: none; user-select: none; }
+.pc-window__head.is-dragging { cursor: grabbing; }
+.pc-window__title { flex: 1; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+.pc-window__buttons { display: flex; height: 100%; }
+.pc-window__buttons button { font-size: 14px; line-height: 1; padding: 0 10px; }
+.pc-window__buttons button:hover { background: #101010; color: #f7f7f7 !important; }
+.pc-window__body { flex: 1; min-height: 0; overflow: auto; }
+
+/* Apps */
+.pc-files { padding: 8px; }
+.pc-files__row { align-items: center; display: flex; gap: 14px; padding: 8px 10px; text-align: left; width: 100%; }
+.pc-files__row:hover { background: #f7f7f7; color: #101010 !important; }
+.pc-files__no { opacity: 0.6; }
+.pc-files__name { flex: 1; }
+.pc-files__tip { color: #777; font-size: 11px; margin-top: 12px; padding: 0 10px; }
+.pc-project { padding: 18px 20px; }
+.pc-project__title { font-family: "Sofia Sans Condensed"; font-size: 44px; font-weight: 700; line-height: 0.9; text-transform: uppercase; }
+.pc-project__meta { color: #999; font-size: 12px; margin: 10px 0 14px; text-transform: uppercase; }
+.pc-project__blurb { font-size: 13px; line-height: 1.55; margin-bottom: 8px; }
+.pc-project__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+.pc-project__tags span { border: 1px solid #555; font-size: 11px; padding: 3px 8px; text-transform: uppercase; }
+.pc-project__link { border-bottom: 1px solid #f7f7f7; display: inline-block; }
+.pc-contact { align-items: baseline; display: flex; gap: 16px; margin-top: 12px; }
+.pc-contact span { color: #999; text-transform: uppercase; width: 70px; }
+.pc-terminal { display: flex; flex-direction: column; font-size: 12.5px; line-height: 1.5; padding: 10px 12px; }
+.pc-terminal__out { flex: 1; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
+.pc-terminal__line { align-items: center; display: flex; flex: none; gap: 8px; }
+.pc-terminal__prompt { color: #8a8a8a; white-space: nowrap; }
+.pc-terminal__input { background: transparent; border: 0; caret-color: #f7f7f7; color: inherit; flex: 1; font: inherit; outline: 0; }

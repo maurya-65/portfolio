@@ -89,16 +89,46 @@ export const about = {
   photos: [placeholder("maurya-life-one", 506, 566), placeholder("maurya-life-two", 412, 708)],
 };
 
-// PLACEHOLDER covers (Picsum). The 3D slider shows these on its screen, so they are 16:9.
+// The projects shown on the monitor. The covers are PLACEHOLDERS (Picsum) for the plain 3D slider that phones get;
+// on a wide screen the monitor turns into a small desktop that lists these as files.
+const items = [
+  {
+    title: "Keepline",
+    slug: "keepline",
+    year: "2026",
+    kind: "Hack Atlantic, Fredericton",
+    blurb:
+      "When someone leaves a team, what they knew leaves with them. Keepline reads the Slack, email and tickets a team already writes and turns them into a company memory that keeps its history: who said what, when it was true, and what replaced it. From that it maps which topics only one person knows, writes a handoff pack for the person leaving, briefs the new hire, and answers questions with links back to the source messages.",
+    stack: ["SQLite", "BM25 search", "Claude API", "Vercel"],
+    href: "#",
+  },
+  {
+    title: "Auctus",
+    slug: "auctus",
+    year: "2026",
+    kind: "Boost Ideation Camp, Fredericton",
+    blurb:
+      "An AI funding-discovery platform built with a small team and taken from idea to working MVP, then pitched, all during the camp.",
+    stack: ["AI", "Web app", "MVP"],
+    href: "#",
+  },
+  {
+    title: "This portfolio",
+    slug: "portfolio",
+    year: "2026",
+    kind: "Personal project",
+    blurb:
+      "The site you are on: an Astro build with smooth scrolling, scroll-driven animation, a physics-based About section, two Three.js scenes and this desktop.",
+    stack: ["Astro", "TypeScript", "GSAP", "Three.js", "Lenis", "Matter.js"],
+    href: "#",
+  },
+];
+
 export const projects = {
   title: "recent works",
   link: "view project",
-  slides: [
-    { title: "Portfolio Site", image: placeholder("portfolio-site", 1626, 940), href: "#" },
-    { title: "Task Manager API", image: placeholder("task-manager-api", 1626, 940), href: "#" },
-    { title: "Campus Planner", image: placeholder("campus-planner", 1626, 940), href: "#" },
-    { title: "Data Dashboard", image: placeholder("data-dashboard", 1626, 940), href: "#" },
-  ],
+  items,
+  slides: items.map((item) => ({ title: item.title, image: placeholder(item.slug, 1626, 940), href: item.href })),
 };
 
 // Copy for the laptop section, and the text shown on its screen.

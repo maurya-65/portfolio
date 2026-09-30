@@ -57,7 +57,8 @@ function strip(width: number, height: number, font: string, words: string[], bas
   c.font = font;
   c.textBaseline = "alphabetic";
   const widths = words.map((word) => c.measureText(word).width);
-  const gap = (width - widths.reduce((sum, w) => sum + w, 0)) / (words.length - 1);
+  // One gap per word, including the one that wraps around the ring, so the last word never touches the first.
+  const gap = (width - widths.reduce((sum, w) => sum + w, 0)) / words.length;
   let x = 0;
   words.forEach((word, i) => {
     c.fillText(word, x, baseline);

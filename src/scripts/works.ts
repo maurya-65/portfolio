@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { createPC, PC_SIZE, type PCData } from "./pc";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,10 +43,35 @@ function init(host: HTMLElement): Promise<void> {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    placePC();
     dirty = true;
   };
   let dirty = true;
   new ResizeObserver(resize).observe(stage);
+
+  // ---- The desktop: as the section ends the camera moves in until the screen fills most of the stage, and an
+  // HTML desktop is laid over the screen plane (0.813 x 0.47 at z -0.72) so it can be used with the keyboard and
+  // mouse. The 3D view is then a still frame: nothing draws while the desktop is in use.
+  const pcRoot = host.querySelector<HTMLElement>(".pc");
+  const pc = pcRoot && desktop() ? createPC(pcRoot, JSON.parse(pcRoot.dataset.pc ?? "{}") as PCData) : null;
+  const SCREEN = { width: 0.813, height: 0.47, z: -0.72 };
+  const fit = () => {
+    const { clientWidth: w, clientHeight: h } = stage;
+    const width = Math.min(0.74 * w, 0.74 * h * (SCREEN.width / SCREEN.height));
+    const unit = width / SCREEN.width;
+    const distance = h / 2 / Math.tan((22.5 * Math.PI) / 180) / unit;
+    return { w, h, width, unit, z: distance + SCREEN.z };
+  };
+  const placePC = () => {
+    if (!pcRoot || !pc) return;
+    const { w, h, width, unit } = fit();
+    const k = width / PC_SIZE.width;
+    const left = w / 2 + 0.004 * unit - width / 2;
+    const top = h / 2 - 0.001 * unit - (SCREEN.height * unit) / 2;
+    pcRoot.style.transform = `translate(${left}px, ${top}px) scale(${k})`;
+    pc.setScale(k);
+  };
+  let locked = false;
 
   // Light for the stand-in monitor.
   scene.add(new THREE.HemisphereLight(0xbcc4ff, 0x080808, 0.9));
@@ -208,6 +234,29 @@ function init(host: HTMLElement): Promise<void> {
     scrollTrigger: { trigger: section, start: "top 40%", end: "+=200%", scrub: 2, invalidateOnRefresh: true },
   });
 
+  if (pc && pcRoot) {
+    gsap.to(camera.position, {
+      z: () => fit().z,
+      ease: "none",
+      onUpdate: () => (dirty = true),
+      scrollTrigger: {
+        trigger: section,
+        start: "top -170%",
+        end: "top -250%",
+        scrub: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const on = self.progress > 0.985;
+          if (on === locked) return;
+          locked = on;
+          pcRoot.classList.toggle("is-on", on);
+          pc.setActive(on);
+          dirty = true;
+        },
+      },
+    });
+  }
+
   // The "view case" link and the phone hint appear as the section scrolls.
   if (link) {
     gsap.fromTo(link, { opacity: 0, pointerEvents: "none" }, { opacity: 1, pointerEvents: "auto", scrollTrigger: { trigger: section, start: "top -100%", end: "bottom 100%", scrub: true } });
@@ -241,8 +290,8 @@ function init(host: HTMLElement): Promise<void> {
       material.opacity = Math.abs(target - next) < 0.001 ? target : next;
     });
     if (desktop()) {
-      const dx = 0.05 * (0.1 * mouse.x - camera.position.x);
-      const dy = 0.05 * (0.1 * mouse.y - camera.position.y);
+      const dx = 0.05 * (locked ? 0 - camera.position.x : 0.1 * mouse.x - camera.position.x);
+      const dy = 0.05 * (locked ? 0 - camera.position.y : 0.1 * mouse.y - camera.position.y);
       if (Math.abs(dx) > 1e-6 || Math.abs(dy) > 1e-6) moving = true;
       camera.position.x += dx;
       camera.position.y += dy;

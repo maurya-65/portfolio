@@ -1,7 +1,8 @@
 ---
-import { projects } from "../data/site";
+import { projects, site } from "../data/site";
 import Split from "./Split.astro";
 import Roll from "./Roll.astro";
+const pcData = { owner: `${site.firstName} ${site.lastName}`, user: site.firstName.toLowerCase(), about: [`${site.firstName} ${site.lastName}, a computer science student at UNB in Fredericton.`, "I build web software and like learning every layer of it."], projects: projects.items, contact: { email: site.email, github: site.github, linkedin: site.linkedin } };
 ---
 
 <section class="projects" id="works">
@@ -10,6 +11,7 @@ import Roll from "./Roll.astro";
     <div class="projects-stage" style="position: relative; width: 100%; height: 100%; overflow: hidden;">
       <canvas class="projects-gl" style="display: block; width: 100%; height: 100%;" aria-label="Interactive 3D slider of recent projects"></canvas>
     </div>
+    <div class="pc" data-pc={JSON.stringify(pcData)} aria-label="Interactive desktop with my projects"></div>
     <div class="projects-tip" style="position: fixed; left: 0; top: 0; pointer-events: none; background: #101010; color: #fff; padding: 4rem 20rem; border-radius: 3rem; font-size: 12rem; white-space: nowrap; z-index: 9999; clip-path: inset(0 100% 0 0);">Swipe</div>
     <div class="projects-canvas__swipe">Swipe slider</div>
     <Roll text={projects.link} href={projects.slides[0].href} />

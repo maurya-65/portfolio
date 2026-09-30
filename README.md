@@ -46,7 +46,6 @@ The resume PDF is `public/maurya_oganja_resume.pdf`. Replace the file, keep the 
   - `perf.ts` low-power detection (see below)
 - `src/styles/` global, section and extra styles
 - `public/fonts/` self-hosted Sofia Sans Condensed and Spline Sans Mono
-- `public/img/` loader texture strips
 
 ## Performance
 

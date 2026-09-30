@@ -1,6 +1,5 @@
-/* Everything that is not olha's stylesheet: the starfield and Earth intro (kept from before), the laptop
-   section, and the few overrides the Earth intro and the mobile layout need. Values are in px because
-   olha's stylesheet turns 1rem into about a pixel. */
+/* Everything that is not olha's stylesheet: the laptop section, the loader, the Works computer and a few
+   overrides for the mobile layout. Values are in px because olha's stylesheet turns 1rem into about a pixel. */
 
 :root {
   --page: #f7f7f7;
@@ -18,80 +17,7 @@ html.lenis, html.lenis body { height: auto; }
 
 body { background: #050608; }
 
-/* The starfield sits behind the Earth intro only; the site covers it once it takes over. */
-.space {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-/* Earth intro */
-
-.earth-stage {
-  position: relative;
-  height: 100dvh;
-  overflow: hidden;
-}
-
-.earth-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* Fades over the land at the very end, so the site arrives on its own background. */
-.earth-veil {
-  position: absolute;
-  inset: 0;
-  background: var(--page);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.earth-hint {
-  position: absolute;
-  inset: auto 0 36px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: #a3a3a8;
-  font-size: 12px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  pointer-events: none;
-}
-
-.earth-hint i {
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(currentColor, transparent);
-  animation: hint 2.2s var(--ease) infinite;
-}
-
-@keyframes hint {
-  0% {
-    transform: scaleY(0);
-    transform-origin: top;
-  }
-  50% {
-    transform: scaleY(1);
-    transform-origin: top;
-  }
-  51% {
-    transform-origin: bottom;
-  }
-  100% {
-    transform: scaleY(0);
-    transform-origin: bottom;
-  }
-}
-
-
-/* The site: everything after the Earth intro sits on the page colour */
+/* The site sits on the page colour */
 
 .site {
   position: relative;
@@ -99,7 +25,7 @@ body { background: #050608; }
   overflow-x: clip;
 }
 
-/* olha scrolls an inner container on phones; the Earth intro needs the window to scroll, so it always does. */
+/* olha scrolls an inner container on phones; here the window always scrolls. */
 @media (max-width: 1100px) {
   body, html { overflow: visible; overflow-x: hidden; }
   .scroll-container { height: auto; overflow: visible; }
@@ -211,7 +137,6 @@ body { background: #050608; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-  .earth-hint i { animation: none; }
 }
 
 /* olha renders some about text differently on a phone, decided in script; here it is decided in CSS. */

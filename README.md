@@ -56,3 +56,7 @@ Placeholder images load from Picsum. Real photos should be resized to about 1600
 ## Deploying
 
 `npm run build` outputs a static site to `dist/`, which any static host can serve (Vercel, Netlify, GitHub Pages, Cloudflare Pages).
+
+## Credits
+
+Design reference: [REF - OL](https://olhalazarieva.com/)

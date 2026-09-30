@@ -202,14 +202,15 @@ export const nav = [
   { label: "connect", id: "connect" },
 ];
 
-// PLACEHOLDER entries: replace each row with your real experience and achievements.
 export const experience = {
   title: "experience",
   code: "cs/3",
   rows: [
-    { when: "2026 — Present", title: "Role title", place: "Company name, City", text: "One or two lines on what you built and the result it had." },
-    { when: "2025", title: "Role title", place: "Company or team name", text: "One or two lines on what you built and the result it had." },
-    { when: "2024", title: "Project or volunteer role", place: "Organisation name", text: "One or two lines on what you built and the result it had." },
+    { when: "Sep 2026 — Present", title: "MLC Tutor", place: "University of New Brunswick, Fredericton, NB", text: "Helps students in drop-in sessions, breaking problems down step by step until the concept makes sense, and takes on private one-on-one tutoring through the MLC." },
+    { when: "2026", title: "Hack Atlantic 2026", place: "Fredericton, NB", text: "Built Keepline, which turns the Slack, email and ticket messages a team already writes into a company memory, so a departing person's knowledge is handed off to their replacement." },
+    { when: "Jan 2026", title: "Boost Ideation Camp 2026", place: "Fredericton, NB", text: "Worked in a team to build and pitch Auctus, an AI funding-discovery platform, taking it from idea to working MVP during the camp." },
+    { when: "2026", title: "Open Source Contributor", place: "GirlScript Summer of Code, Remote", text: "Picked up issues across community repositories and got pull requests reviewed and merged with help from project mentors." },
+    { when: "Nov 2025 — Feb 2026", title: "Open Source Contributor", place: "Code Social, Winter of Code, Remote", text: "Contributed through pull requests, code reviews and issue triage over the three-month program." },
   ],
 };
 
@@ -217,8 +218,8 @@ export const achievements = {
   title: "achievements",
   code: "cs/4",
   rows: [
-    { when: "2026", title: "Award or scholarship", place: "Awarded by", text: "A line on what it recognised and why it mattered." },
-    { when: "2025", title: "Hackathon or competition", place: "Event name", text: "A line on what you built and where you placed." },
-    { when: "2024", title: "Certification or milestone", place: "Issuer", text: "A line on what you learned or achieved." },
+    { when: "2025 — 2026", title: "Dean's List", place: "University of New Brunswick", text: "Recognized for outstanding academic performance." },
+    { when: "2024 — 2025", title: "Eldon and Maxine Clair Scholarship in Computer Science", place: "University of New Brunswick", text: "Awarded by the UNB Faculty of Computer Science; one of only two students selected." },
+    { when: "2024 — 2025", title: "UNB Alumni Scholarship for International Students", place: "University of New Brunswick", text: "Merit award recognizing exceptional high school academic performance and extracurricular activities." },
   ],
 };

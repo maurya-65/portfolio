@@ -14,13 +14,7 @@ const pcData = { owner: `${site.firstName} ${site.lastName}`, user: site.firstNa
     <div class="pc" data-pc={JSON.stringify(pcData)} aria-label="Interactive desktop with my projects"></div>
     <div class="projects-tip" style="position: fixed; left: 0; top: 0; pointer-events: none; background: #101010; color: #fff; padding: 4rem 20rem; border-radius: 3rem; font-size: 12rem; white-space: nowrap; z-index: 9999; clip-path: inset(0 100% 0 0);">Swipe</div>
     <div class="projects-canvas__swipe">Swipe slider</div>
-    {projects.spline.url && (
-      <button class="spatial-open" type="button" data-scene={projects.spline.url} data-credit={projects.spline.credit} hidden>{projects.spline.label}</button>
-    )}
     <Roll text={projects.link} href={projects.slides[0].href} />
   </div>
 </section>
 
-<script>
-  import "../../scripts/scenes/spatial.ts";
-</script>

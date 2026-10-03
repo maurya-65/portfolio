@@ -47,7 +47,7 @@ src/
   pages/       index.astro, 404.astro
   scripts/
     main.ts    scroll, loader, hero, header and form logic
-    scenes/    WebGL: loader-ring, works (the monitor), laptop, spatial (optional Spline overlay)
+    scenes/    WebGL: loader-ring, works (the monitor), laptop
     features/  pc (the desktop on the monitor), canvas-text (Matter.js About letters), awards
     lib/       perf.ts, low-power detection (see below)
   styles/      global.css (base and section styles), components.css (additions)

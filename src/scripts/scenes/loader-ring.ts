@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
-import { lite, pixelRatio } from "./perf";
+import { lite, pixelRatio } from "../lib/perf";
 
 // The loader scene, copied from olha's: a light canvas (camera at z 6, fov 50), two radius-1 spheres whose
 // textures are transparent with only text on them, so they read as two rings of words. The spheres turn at
@@ -114,7 +114,7 @@ export async function createLoaderRing(host: HTMLElement) {
 
   const geometry = new THREE.SphereGeometry(1, 64, 64);
   const textures = images.map(ringTexture);
-  const meshes = RINGS.map((ring, index) => {
+  const meshes = RINGS.map((_ring, index) => {
     const material = new THREE.ShaderMaterial({
       uniforms: { map: { value: textures[index] } },
       vertexShader,

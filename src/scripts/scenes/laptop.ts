@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
-import { lite, pixelRatio } from "./perf";
+import { lite, pixelRatio } from "../lib/perf";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
 // All sizes are in scene units, roughly 10 cm each.
@@ -491,7 +491,12 @@ export const ready: Promise<void> =
         document.fonts.load('300 40px "Spline Sans Mono"'),
         document.fonts.load('400 40px "Spline Sans Mono"'),
       ]).then(() => {
-        init(stage, canvas);
+        try {
+          init(stage, canvas);
+        } catch (error) {
+          // No WebGL2 (software rendering, blocklisted GPU, hardware acceleration off): leave the canvas empty, keep the page.
+          console.error("[laptop] 3D scene failed to start", error);
+        }
         return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
       })
     : Promise.resolve();

@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { lite, pixelRatio } from "./perf";
-import { createPC, PC_SIZE, type PCData } from "./pc";
+import { lite, pixelRatio } from "../lib/perf";
+import { createPC, PC_SIZE, type PCData } from "../features/pc";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -267,7 +267,6 @@ function init(host: HTMLElement): Promise<void> {
   }
 
   // Frames are only drawn while the section is around (olha: from the middle of About to the middle of Services).
-  let active = false;
   const from = document.querySelector(".about") ?? section;
   const to = document.querySelector(".services") ?? from;
   ScrollTrigger.create({
@@ -275,8 +274,7 @@ function init(host: HTMLElement): Promise<void> {
     start: document.querySelector(".about") ? "center center" : "top bottom",
     endTrigger: to,
     end: "center top",
-    onToggle: (self) => {
-      active = self.isActive;
+    onToggle: () => {
       dirty = true;
     },
   });
@@ -311,4 +309,8 @@ function init(host: HTMLElement): Promise<void> {
 }
 
 const host = document.querySelector<HTMLElement>(".projects-canvas");
-export const ready: Promise<void> = host ? init(host) : Promise.resolve();
+export const ready: Promise<void> = host
+  ? Promise.resolve()
+      .then(() => init(host))
+      .catch((error) => console.error("[works] 3D scene failed to start", error))
+  : Promise.resolve();

@@ -36,24 +36,34 @@ The resume PDF is `public/maurya_oganja_resume.pdf`. Replace the file, keep the 
 
 ## Project layout
 
-- `src/components/` page sections (Hero, About, Works, LaptopShowcase, Services, Timeline, Education, Contact, Footer, ...)
-- `src/scripts/`
-  - `site.ts` scroll, loader, hero, header and form logic
-  - `loader-ring.ts` the loader's 3D rings
-  - `works.ts` the monitor scene; `pc.ts` the desktop that runs on it
-  - `laptop.ts` the 3D laptop
-  - `canvas-text.ts` the Matter.js About letters
-  - `perf.ts` low-power detection (see below)
-- `src/styles/` global, section and extra styles
-- `public/fonts/` self-hosted Sofia Sans Condensed and Spline Sans Mono
+```
+src/
+  components/
+    layout/    Header, Footer
+    sections/  Hero, About, Works, LaptopShowcase, Services, Timeline, Education, Contact
+    ui/        Arrow, Lines, Roll, Split (small shared pieces)
+  data/        site.ts, all the written content
+  layouts/     Base.astro, the HTML shell
+  pages/       index.astro, 404.astro
+  scripts/
+    main.ts    scroll, loader, hero, header and form logic
+    scenes/    WebGL: loader-ring, works (the monitor), laptop, spatial (optional Spline overlay)
+    features/  pc (the desktop on the monitor), canvas-text (Matter.js About letters), awards
+    lib/       perf.ts, low-power detection (see below)
+  styles/      global.css (base and section styles), components.css (additions)
+public/        fonts, resume PDF
+vercel.json    cache headers
+```
 
 ## Performance
 
-`src/scripts/perf.ts` switches the 3D scenes to a cheaper mode on machines with 4 cores or fewer, 4 GB of memory or less, or reduced-motion on: pixel ratio 1, no antialiasing, smaller shadow maps and lighter physics. Other machines are capped at a 1.5x pixel ratio. The monitor desktop is plain DOM and CSS, so it costs almost nothing once it is open.
+`src/scripts/lib/perf.ts` switches the 3D scenes to a cheaper mode on machines with 4 cores or fewer, 4 GB of memory or less, or reduced-motion on: pixel ratio 1, no antialiasing, smaller shadow maps and lighter physics. Other machines are capped at a 1.5x pixel ratio. The monitor desktop is plain DOM and CSS, so it costs almost nothing once it is open.
 
 Placeholder images load from Picsum. Real photos should be resized to about 1600px wide and compressed, since the loader waits for them.
 
 ## Deploying
+
+Vercel serves `/_astro/*` and `/fonts/*` with a one-year immutable cache (`vercel.json`). Built files are content-hashed, so repeat visitors re-download only what changed.
 
 `npm run build` outputs a static site to `dist/`, which any static host can serve (Vercel, Netlify, GitHub Pages, Cloudflare Pages).
 

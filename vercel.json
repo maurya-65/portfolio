@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/(fonts|img)/(.*)",
+      "source": "/(_astro|fonts)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

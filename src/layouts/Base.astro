@@ -1,6 +1,6 @@
 ---
-import "../styles/olha.css";
-import "../styles/extras.css";
+import "../styles/global.css";
+import "../styles/components.css";
 import { site } from "../data/site";
 
 interface Props {
@@ -38,7 +38,7 @@ const description = `${site.firstName} ${site.lastName} is a computer science st
     <slot />
     <script>
       // site.ts loads the two 3D sections itself and keeps the loader up until they are drawn.
-      import "../scripts/site.ts";
+      import "../scripts/main.ts";
     </script>
   </body>
 </html>

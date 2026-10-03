@@ -1,7 +1,7 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import { awards } from "./awards";
+import { awards } from "./features/awards";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -415,7 +415,7 @@ function runLoader(): Promise<void> {
   const counter = one<HTMLElement>("[data-loader-count]", cover)!;
   const label = one<HTMLElement>(".loader-counter", cover)!;
   lenis?.stop();
-  const ring = import("./loader-ring.ts").then((module) => module.createLoaderRing(cover)).catch(() => null);
+  const ring = import("./scenes/loader-ring.ts").then((module) => module.createLoaderRing(cover)).catch(() => null);
 
   // A safety net only: a stuck asset must not hold the page forever.
   const patient = (task: Promise<unknown>) => Promise.race([task.catch(() => {}), new Promise((resolve) => setTimeout(resolve, 20000))]);
@@ -425,8 +425,8 @@ function runLoader(): Promise<void> {
     document.fonts?.ready ?? Promise.resolve(),
     ...all<HTMLImageElement>("img").map((img) => img.decode()),
     // The two Three.js scenes: modules, textures, shaders and the first frame.
-    import("./works.ts").then((module) => module.ready),
-    import("./laptop.ts").then((module) => module.ready),
+    import("./scenes/works.ts").then((module) => module.ready),
+    import("./scenes/laptop.ts").then((module) => module.ready),
     ring,
     // The About letters: measured with the real font and drawn once.
     textReady,
@@ -488,7 +488,7 @@ awards();
 wireForm();
 wireFooter();
 // Matter.js is about a third of this file, and nothing needs it before the loader is on screen.
-const textReady = import("./canvas-text").then((module) => module.canvasText());
+const textReady = import("./features/canvas-text").then((module) => module.canvasText());
 runLoader().then(() => {
   window.dispatchEvent(new Event("site:ready"));
 });

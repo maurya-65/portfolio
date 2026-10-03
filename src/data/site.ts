@@ -124,7 +124,13 @@ const items = [
   },
 ];
 
+// A published Spline scene (its my.spline.design share link). Leave empty to hide the button.
+// The scene is only loaded when a visitor clicks it. Based on "APPLE vision pro 3D portfolio concept" by
+// zenodegenkamp (CC BY 4.0), so keep the credit.
+const splineScene = "https://my.spline.design/applevisionpro3dportfolioconcept-14rZQtHljIfqsS8KL5iJwet0/";
+
 export const projects = {
+  spline: { url: splineScene, label: "Enter spatial view", credit: "Room scene based on work by zenodegenkamp, CC BY 4.0" },
   title: "recent works",
   link: "view project",
   items,

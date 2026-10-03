@@ -1,7 +1,7 @@
 import Matter from "matter-js";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { gsap } from "gsap";
-import { lite, pixelRatio } from "./perf";
+import { lite, pixelRatio } from "../lib/perf";
 
 type Line = { text: string; white: boolean };
 type Point = { x: number; y: number };

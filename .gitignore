@@ -6,15 +6,3 @@ dist
 .agents
 .claude/skills
 skills-lock.json
-
-# screen recording of the reference site
-reference/
-
-# reference material, not part of the site
-olha/
-olha.zip
-aura-animated-designer-portfolio-zip-review-v1_21st_app.html
-
-# more reference material, not part of the site
-adullah/
-adullah.zip

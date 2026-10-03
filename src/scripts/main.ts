@@ -409,7 +409,10 @@ function runLoader(): Promise<void> {
   const cover = one<HTMLElement>("#loader");
   if (!cover) return Promise.resolve();
   if (reduced) {
+    // No loader for visitors who asked for less motion, but the two 3D sections still have to start.
     cover.remove();
+    import("./scenes/works.ts");
+    import("./scenes/laptop.ts");
     return Promise.resolve();
   }
   const counter = one<HTMLElement>("[data-loader-count]", cover)!;

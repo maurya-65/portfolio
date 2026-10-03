@@ -2,61 +2,147 @@ import * as THREE from "three";
 import { gsap } from "gsap";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { lite, pixelRatio } from "../lib/perf";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 
-// All sizes are in scene units, roughly 10 cm each.
-const WIDTH = 3.2;
-const DEPTH = 2.2;
-const BASE_HEIGHT = 0.15;
-const LID_THICKNESS = 0.07;
-const LID_DEPTH = 2.12;
+// Modelled on the Lenovo IdeaPad Pro 5i 16" (16IAH10) from Lenovo's own spec sheet and product photos:
+// 356.8 x 251 x 15.95 mm, Luna Grey anodised and sandblasted aluminium, full-size keyboard with a numeric keypad,
+// a 135 x 80 mm glass touchpad, the real port order on each side, rubber feet and a camera hump on the lid.
+// All sizes are in scene units of 100 mm.
+const WIDTH = 3.568;
+const DEPTH = 2.51;
+const BASE_HEIGHT = 0.095;
+const FEET = 0.018;
+const LID_THICKNESS = 0.045;
+const LID_DEPTH = 2.48;
 const OPEN_ANGLE = THREE.MathUtils.degToRad(112);
 
-const KEYBOARD_WIDTH = 2.85;
-const KEY_HEIGHT = 0.05;
-const KEY_GAP = 0.024;
-const KEYBOARD_BACK = -0.9;
+const KEYBOARD_WIDTH = 3.3;
+const KEY_HEIGHT = 0.03;
+const KEY_GAP = 0.02;
+const KEYBOARD_BACK = -0.93;
 
 const DEFAULT_VIEW = { azimuth: -0.5, elevation: 0.42 };
 
-type Key = [label: string, width: number];
+// One key in keyboard units (a normal key is 1 x 1); x and y are measured from the keyboard's top-left corner.
+type Placed = { label: string; x: number; y: number; w: number; h: number };
 
-// Every row adds up to 15 units, so the keyboard ends flush on both sides.
-const ROWS: { height: number; keys: Key[] }[] = [
-  {
-    height: 0.62,
-    keys: [["Esc", 1], ...Array.from({ length: 12 }, (_, i): Key => [`F${i + 1}`, 1]), ["Del", 2]],
-  },
-  {
-    height: 1,
-    keys: [..."`1234567890-=".split("").map((c): Key => [c, 1]), ["Backspace", 2]],
-  },
-  {
-    height: 1,
-    keys: [["Tab", 1.5], ..."QWERTYUIOP[]".split("").map((c): Key => [c, 1]), ["\\", 1.5]],
-  },
-  {
-    height: 1,
-    keys: [["Caps", 1.75], ..."ASDFGHJKL;'".split("").map((c): Key => [c, 1]), ["Enter", 2.25]],
-  },
-  {
-    height: 1,
-    keys: [["Shift", 2.25], ..."ZXCVBNM,./".split("").map((c): Key => [c, 1]), ["Shift", 2.75]],
-  },
-  {
-    height: 1,
-    keys: [["Ctrl", 1.25], ["Fn", 1], ["Win", 1.25], ["Alt", 1.25], ["", 6.25], ["Alt", 1], ["Ctrl", 1], ["<", 1], [">", 1]],
-  },
-];
+const NUMPAD_X = 15.3;
+const NUMPAD_KEY = 0.86;
+const ROW_HEIGHTS = [0.62, 1, 1, 1, 1, 1];
+const ROW_Y = ROW_HEIGHTS.map((_, i) => ROW_HEIGHTS.slice(0, i).reduce((sum, h) => sum + h, 0));
+const KEYBOARD_UNITS = { w: NUMPAD_X + 4 * NUMPAD_KEY, h: ROW_HEIGHTS.reduce((sum, h) => sum + h, 0) };
 
+function layoutKeys(): Placed[] {
+  const keys: Placed[] = [];
+  const row = (index: number, list: [label: string, width: number][]) => {
+    let x = 0;
+    for (const [label, w] of list) {
+      keys.push({ label, x, y: ROW_Y[index], w, h: ROW_HEIGHTS[index] });
+      x += w;
+    }
+  };
+  const single = (text: string): [string, number][] => text.split("").map((c) => [c, 1]);
+
+  // The main block: every row adds up to 15 units.
+  row(0, [["Esc", 1], ...Array.from({ length: 12 }, (_, i): [string, number] => [`F${i + 1}`, 1]), ["Del", 2]]);
+  row(1, [...single("`1234567890-="), ["Backspace", 2]]);
+  row(2, [["Tab", 1.5], ...single("QWERTYUIOP[]"), ["\\", 1.5]]);
+  row(3, [["Caps", 1.75], ...single("ASDFGHJKL;'"), ["Enter", 2.25]]);
+  row(4, [["Shift", 2.25], ...single("ZXCVBNM,./"), ["Shift", 2.75]]);
+  // Bottom row with the inverted-T arrows: left and right are half height, up sits above down.
+  row(5, [["Ctrl", 1.1], ["Fn", 1], ["Win", 1.1], ["Alt", 1.1], ["", 5.5], ["Alt", 1.1], ["Ctrl", 1.1]]);
+  const arrowX = 12;
+  const bottom = ROW_Y[5];
+  keys.push({ label: "<", x: arrowX, y: bottom + 0.5, w: 1, h: 0.5 });
+  keys.push({ label: "^", x: arrowX + 1, y: bottom, w: 1, h: 0.5 });
+  keys.push({ label: "v", x: arrowX + 1, y: bottom + 0.5, w: 1, h: 0.5 });
+  keys.push({ label: ">", x: arrowX + 2, y: bottom + 0.5, w: 1, h: 0.5 });
+
+  // The numeric keypad: narrower keys, a tall + and Enter.
+  const pad = (label: string, col: number, r: number, w = 1, h = 1) => {
+    const height = ROW_HEIGHTS.slice(r, r + h).reduce((sum, v) => sum + v, 0);
+    keys.push({ label, x: NUMPAD_X + col * NUMPAD_KEY, y: ROW_Y[r], w: w * NUMPAD_KEY, h: height });
+  };
+  ["Home", "End", "PgUp", "PgDn"].forEach((label, col) => pad(label, col, 0));
+  ["Num", "/", "*", "-"].forEach((label, col) => pad(label, col, 1));
+  ["7", "8", "9"].forEach((label, col) => pad(label, col, 2));
+  pad("+", 3, 2, 1, 2);
+  ["4", "5", "6"].forEach((label, col) => pad(label, col, 3));
+  ["1", "2", "3"].forEach((label, col) => pad(label, col, 4));
+  pad("Ent", 3, 4, 1, 2);
+  pad("0", 0, 5, 2);
+  pad(".", 2, 5);
+  return keys;
+}
+
+// Sandblasted, anodised aluminium: a fine, even grain with no direction, drawn once. It drives roughness and a
+// faint bump, which is what separates real metal from painted plastic.
+let grainTexture: THREE.CanvasTexture | null = null;
+function grain() {
+  if (grainTexture) return grainTexture;
+  const size = 512;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = size;
+  const context = canvas.getContext("2d")!;
+  context.fillStyle = "#9e9e9e";
+  context.fillRect(0, 0, size, size);
+  for (let i = 0; i < 60000; i++) {
+    const v = 60 + Math.random() * 140;
+    context.fillStyle = `rgba(${v},${v},${v},0.2)`;
+    context.fillRect(Math.random() * size, Math.random() * size, 1, 1);
+  }
+  grainTexture = new THREE.CanvasTexture(canvas);
+  grainTexture.wrapS = grainTexture.wrapT = THREE.RepeatWrapping;
+  grainTexture.repeat.set(5, 5);
+  grainTexture.anisotropy = 8;
+  return grainTexture;
+}
+
+// Luna Grey.
 const aluminium = () =>
   new THREE.MeshPhysicalMaterial({
-    color: 0x7a808b,
-    metalness: 1,
-    roughness: 0.3,
-    clearcoat: 0.15,
-    clearcoatRoughness: 0.4,
+    color: 0x95979c,
+    metalness: 0.92,
+    roughness: 1,
+    roughnessMap: grain(),
+    bumpMap: grain(),
+    bumpScale: 0.3,
+    clearcoat: 0.05,
+    clearcoatRoughness: 0.6,
   });
+
+// A small photo studio instead of a plain room: a big overhead softbox, two tall strip lights and a dim warm
+// bounce, over a graded dark backdrop. The strips are what draw the long highlights along the metal edges.
+// Values above 1 are fine here, the environment is rendered in half float.
+function createStudio() {
+  const studio = new THREE.Scene();
+  const backdrop = document.createElement("canvas");
+  backdrop.width = 4;
+  backdrop.height = 256;
+  const gradient = backdrop.getContext("2d")!;
+  const fade = gradient.createLinearGradient(0, 0, 0, 256);
+  fade.addColorStop(0, "#7b7e85");
+  fade.addColorStop(0.55, "#43454a");
+  fade.addColorStop(1, "#1a1b1d");
+  gradient.fillStyle = fade;
+  gradient.fillRect(0, 0, 4, 256);
+  const dome = new THREE.Mesh(
+    new THREE.SphereGeometry(40, 32, 16),
+    new THREE.MeshBasicMaterial({ map: Object.assign(new THREE.CanvasTexture(backdrop), { colorSpace: THREE.SRGBColorSpace }), side: THREE.BackSide }),
+  );
+  studio.add(dome);
+
+  const panel = (width: number, height: number, power: number, tint: number, position: [number, number, number], look: [number, number, number]) => {
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({ color: new THREE.Color(tint).multiplyScalar(power), side: THREE.DoubleSide }));
+    mesh.position.set(...position);
+    mesh.lookAt(...look);
+    studio.add(mesh);
+  };
+  panel(14, 9, 2.4, 0xffffff, [0, 14, 2], [0, 0, 0]);
+  panel(2.4, 16, 9, 0xffffff, [-13, 5, 3], [0, 0, 0]);
+  panel(2.4, 16, 7, 0xffffff, [13, 5, -2], [0, 0, 0]);
+  panel(12, 3, 1.6, 0xfff1e0, [0, 1.5, 14], [0, 0, 0]);
+  return studio;
+}
 
 function box(width: number, height: number, depth: number, radius: number, material: THREE.Material) {
   const mesh = new THREE.Mesh(new RoundedBoxGeometry(width, height, depth, 5, radius), material);
@@ -67,27 +153,26 @@ function box(width: number, height: number, depth: number, radius: number, mater
 
 function createKeyboard() {
   const group = new THREE.Group();
-  const unit = KEYBOARD_WIDTH / 15;
-  const depth = ROWS.reduce((sum, row) => sum + row.height, 0) * unit;
+  const unit = KEYBOARD_WIDTH / KEYBOARD_UNITS.w;
+  const depth = KEYBOARD_UNITS.h * unit;
+  const left = -KEYBOARD_WIDTH / 2;
+  const deckY = BASE_HEIGHT + 0.002;
 
-  const deck = box(KEYBOARD_WIDTH + 0.1, 0.012, depth + 0.1, 0.02, new THREE.MeshStandardMaterial({ color: 0x07080a, roughness: 0.8 }));
-  deck.position.set(0, BASE_HEIGHT + 0.003, KEYBOARD_BACK + depth / 2);
+  const deck = box(KEYBOARD_WIDTH + 0.1, 0.008, depth + 0.1, 0.015, new THREE.MeshStandardMaterial({ color: 0x08090a, roughness: 0.8 }));
+  deck.position.set(0, deckY, KEYBOARD_BACK + depth / 2);
   group.add(deck);
 
-  // Light shows through the gaps between the keys, like a backlit keyboard.
-  const glow = new THREE.Mesh(
-    new THREE.PlaneGeometry(KEYBOARD_WIDTH, depth),
-    new THREE.MeshBasicMaterial({ color: 0x5a6a90, toneMapped: false }),
-  );
+  // Light shows through the gaps between the keys: a soft, neutral backlight.
+  const glow = new THREE.Mesh(new THREE.PlaneGeometry(KEYBOARD_WIDTH, depth), new THREE.MeshBasicMaterial({ color: 0x555a66, toneMapped: false }));
   glow.rotation.x = -Math.PI / 2;
-  glow.position.set(0, BASE_HEIGHT + 0.0095, KEYBOARD_BACK + depth / 2);
+  glow.position.set(0, deckY + 0.0045, KEYBOARD_BACK + depth / 2);
   group.add(glow);
 
-  const total = ROWS.reduce((sum, row) => sum + row.keys.length, 0);
+  const placed = layoutKeys();
   const keys = new THREE.InstancedMesh(
     new RoundedBoxGeometry(1, 1, 1, 3, 0.12),
-    new THREE.MeshPhysicalMaterial({ color: 0x15171b, roughness: 0.5, metalness: 0.1 }),
-    total,
+    new THREE.MeshStandardMaterial({ color: 0x5f6268, roughness: 0.6, metalness: 0 }),
+    placed.length,
   );
   keys.castShadow = true;
 
@@ -97,36 +182,30 @@ function createKeyboard() {
   legends.width = 2048;
   legends.height = Math.round(depth * pixelsPerUnit);
   const context = legends.getContext("2d")!;
-  context.fillStyle = "rgba(235, 240, 255, 0.82)";
+  context.fillStyle = "rgba(238, 241, 247, 0.9)";
   context.textAlign = "center";
   context.textBaseline = "middle";
 
   const matrix = new THREE.Matrix4();
-  let index = 0;
-  let rowTop = 0;
-  for (const row of ROWS) {
-    const rowHeight = row.height * unit;
-    let left = -KEYBOARD_WIDTH / 2;
-    for (const [label, width] of row.keys) {
-      const keyWidth = width * unit;
-      const x = left + keyWidth / 2;
-      const z = KEYBOARD_BACK + rowTop + rowHeight / 2;
-      matrix.compose(
-        new THREE.Vector3(x, BASE_HEIGHT + 0.009 + KEY_HEIGHT / 2, z),
-        new THREE.Quaternion(),
-        new THREE.Vector3(keyWidth - KEY_GAP, KEY_HEIGHT, rowHeight - KEY_GAP),
-      );
-      keys.setMatrixAt(index++, matrix);
+  placed.forEach((key, index) => {
+    const keyWidth = key.w * unit;
+    const keyDepth = key.h * unit;
+    const x = left + key.x * unit + keyWidth / 2;
+    const z = KEYBOARD_BACK + key.y * unit + keyDepth / 2;
+    matrix.compose(
+      new THREE.Vector3(x, deckY + 0.004 + KEY_HEIGHT / 2, z),
+      new THREE.Quaternion(),
+      new THREE.Vector3(keyWidth - KEY_GAP, KEY_HEIGHT, keyDepth - KEY_GAP),
+    );
+    keys.setMatrixAt(index, matrix);
 
-      if (label) {
-        const single = label.length === 1;
-        context.font = `${single ? 400 : 300} ${single ? 58 : 34}px "Spline Sans Mono", monospace`;
-        context.fillText(label, (x + KEYBOARD_WIDTH / 2) * pixelsPerUnit, (rowTop + rowHeight / 2) * pixelsPerUnit);
-      }
-      left += keyWidth;
+    if (key.label) {
+      const short = key.label.length === 1;
+      const size = short ? 52 : key.label.length > 3 ? 26 : 32;
+      context.font = `${short ? 400 : 300} ${size}px "Spline Sans Mono", monospace`;
+      context.fillText(key.label, (x - left) * pixelsPerUnit, (z - KEYBOARD_BACK) * pixelsPerUnit);
     }
-    rowTop += rowHeight;
-  }
+  });
   group.add(keys);
 
   const legendTexture = new THREE.CanvasTexture(legends);
@@ -137,7 +216,7 @@ function createKeyboard() {
     new THREE.MeshBasicMaterial({ map: legendTexture, transparent: true, depthWrite: false }),
   );
   legendPlane.rotation.x = -Math.PI / 2;
-  legendPlane.position.set(0, BASE_HEIGHT + 0.009 + KEY_HEIGHT + 0.0015, KEYBOARD_BACK + depth / 2);
+  legendPlane.position.set(0, deckY + 0.004 + KEY_HEIGHT + 0.0015, KEYBOARD_BACK + depth / 2);
   group.add(legendPlane);
 
   return group;
@@ -186,57 +265,79 @@ function createScreenTexture(text: { title: string; subtitle: string }, maxAniso
 
 function createLid(screen: THREE.Texture) {
   const pivot = new THREE.Group();
-  pivot.position.set(0, BASE_HEIGHT + 0.005, -DEPTH / 2 + 0.03);
+  pivot.position.set(0, BASE_HEIGHT + 0.004, -DEPTH / 2 + 0.04);
 
-  const shell = box(WIDTH, LID_THICKNESS, LID_DEPTH, 0.03, aluminium());
+  const shell = box(WIDTH, LID_THICKNESS, LID_DEPTH, 0.02, aluminium());
   shell.position.set(0, LID_THICKNESS / 2, LID_DEPTH / 2);
   pivot.add(shell);
 
+  // The raised strip along the far edge of the lid that holds the camera and its sensors.
+  const hump = box(0.8, 0.014, 0.11, 0.006, aluminium());
+  hump.position.set(0, LID_THICKNESS + 0.004, LID_DEPTH - 0.1);
+  pivot.add(hump);
+
   // The inner face is the underside while the lid is closed.
   const bezel = new THREE.Mesh(
-    new RoundedBoxGeometry(WIDTH - 0.06, 0.004, LID_DEPTH - 0.06, 3, 0.002),
-    new THREE.MeshStandardMaterial({ color: 0x030304, roughness: 0.5 }),
+    new RoundedBoxGeometry(WIDTH - 0.05, 0.004, LID_DEPTH - 0.05, 3, 0.002),
+    new THREE.MeshPhysicalMaterial({ color: 0x040405, roughness: 0.4, clearcoat: 0.7, clearcoatRoughness: 0.12 }),
   );
   bezel.position.set(0, -0.0012, LID_DEPTH / 2);
   pivot.add(bezel);
 
-  const screenWidth = WIDTH - 0.16;
-  const screenHeight = (screenWidth * 10) / 16;
-  const display = new THREE.Mesh(
-    new THREE.PlaneGeometry(screenWidth, screenHeight),
-    new THREE.MeshBasicMaterial({ map: screen, toneMapped: false }),
-  );
+  // 16:10, 16 inch: 344 x 215 mm of picture.
+  const screenWidth = 3.44;
+  const screenHeight = screenWidth / 1.6;
+  const screenZ = 0.24 + screenHeight / 2;
+  const display = new THREE.Mesh(new THREE.PlaneGeometry(screenWidth, screenHeight), new THREE.MeshBasicMaterial({ map: screen, toneMapped: false }));
   display.rotation.x = Math.PI / 2;
-  display.position.set(0, -0.0036, 0.1 + screenHeight / 2);
+  display.position.set(0, -0.0036, screenZ);
   pivot.add(display);
 
-  const camera = new THREE.Mesh(
-    new THREE.CircleGeometry(0.014, 24),
-    new THREE.MeshBasicMaterial({ color: 0x0b1220 }),
+  // The glass: black, glossy and added on top, so only its reflections show. The picture itself is not dimmed.
+  const glass = new THREE.Mesh(
+    new THREE.PlaneGeometry(screenWidth, screenHeight),
+    new THREE.MeshPhysicalMaterial({
+      color: 0x000000,
+      roughness: 0.04,
+      metalness: 0,
+      clearcoat: 1,
+      clearcoatRoughness: 0.03,
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }),
   );
+  glass.rotation.x = Math.PI / 2;
+  glass.position.set(0, -0.0041, screenZ);
+  pivot.add(glass);
+
+  const camera = new THREE.Mesh(new THREE.CircleGeometry(0.014, 24), new THREE.MeshBasicMaterial({ color: 0x0b1220 }));
   camera.rotation.x = Math.PI / 2;
-  camera.position.set(0, -0.0038, LID_DEPTH - 0.045);
+  camera.position.set(0, -0.0038, LID_DEPTH - 0.05);
   pivot.add(camera);
 
-  // Wordmark on the outside of the lid, facing whoever stands behind the open laptop.
+  // Wordmark in the middle of the lid, facing whoever stands behind the open laptop.
   const mark = document.createElement("canvas");
   mark.width = 1024;
   mark.height = 256;
   const markContext = mark.getContext("2d")!;
-  markContext.fillStyle = "rgba(38, 42, 50, 0.9)";
+  markContext.fillStyle = "#000";
+  markContext.fillRect(0, 0, mark.width, mark.height);
+  markContext.fillStyle = "#fff";
   markContext.font = `700 150px "Sofia Sans Condensed", sans-serif`;
   markContext.textAlign = "center";
   markContext.textBaseline = "middle";
   markContext.fillText("Lenovo", 512, 128);
+  // Drawn white on black and used as an alpha map, so the logo is polished metal that picks up the reflections.
   const markTexture = new THREE.CanvasTexture(mark);
-  markTexture.colorSpace = THREE.SRGBColorSpace;
+  markTexture.anisotropy = 8;
   const logo = new THREE.Mesh(
-    new THREE.PlaneGeometry(0.6, 0.15),
-    new THREE.MeshBasicMaterial({ map: markTexture, transparent: true, depthWrite: false }),
+    new THREE.PlaneGeometry(0.62, 0.155),
+    new THREE.MeshStandardMaterial({ color: 0xe6e8ed, metalness: 1, roughness: 0.14, alphaMap: markTexture, transparent: true, depthWrite: false }),
   );
   logo.geometry.rotateX(-Math.PI / 2);
   logo.geometry.rotateY(Math.PI);
-  logo.position.set(0, LID_THICKNESS + 0.0015, LID_DEPTH * 0.72);
+  logo.position.set(0, LID_THICKNESS + 0.0015, LID_DEPTH * 0.52);
   pivot.add(logo);
 
   return pivot;
@@ -244,42 +345,78 @@ function createLid(screen: THREE.Texture) {
 
 function createLaptop(screen: THREE.Texture) {
   const laptop = new THREE.Group();
-  const metal = aluminium();
+  // The rubber feet are part of the 15.95 mm, so the body is lifted by their height.
+  laptop.position.y = FEET;
 
-  const base = box(WIDTH, BASE_HEIGHT, DEPTH, 0.045, metal);
+  const base = box(WIDTH, BASE_HEIGHT, DEPTH, 0.045, aluminium());
   base.position.y = BASE_HEIGHT / 2;
   laptop.add(base);
 
   laptop.add(createKeyboard());
 
+  // 135 x 80 mm buttonless glass touchpad, centred under the main block of keys rather than under the whole deck.
+  const keyUnit = KEYBOARD_WIDTH / KEYBOARD_UNITS.w;
+  const mainCentre = -KEYBOARD_WIDTH / 2 + 7.5 * keyUnit;
+  const keyboardEnd = KEYBOARD_BACK + KEYBOARD_UNITS.h * keyUnit;
   const trackpad = box(
-    1.25,
+    1.35,
     0.008,
-    0.66,
+    0.8,
     0.02,
-    new THREE.MeshPhysicalMaterial({ color: 0x70747d, metalness: 0.6, roughness: 0.16, clearcoat: 1 }),
+    new THREE.MeshPhysicalMaterial({ color: 0x7d8087, metalness: 0, roughness: 0.2, clearcoat: 0.7, clearcoatRoughness: 0.06 }),
   );
-  trackpad.position.set(0, BASE_HEIGHT + 0.003, 0.66);
+  trackpad.position.set(mainCentre, BASE_HEIGHT + 0.0065, keyboardEnd + 0.18 + 0.4);
   laptop.add(trackpad);
 
+  // The hinge, exposed behind the keyboard once the lid is open, and the long vent slot in front of it.
   const hinge = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.05, 0.05, WIDTH - 0.5, 32),
-    new THREE.MeshStandardMaterial({ color: 0x1a1b1e, metalness: 0.8, roughness: 0.4 }),
+    new THREE.CylinderGeometry(0.02, 0.02, WIDTH - 0.7, 24),
+    new THREE.MeshStandardMaterial({ color: 0x55575c, metalness: 0.9, roughness: 0.35 }),
   );
   hinge.rotation.z = Math.PI / 2;
-  hinge.position.set(0, BASE_HEIGHT + 0.03, -DEPTH / 2 + 0.03);
+  hinge.position.set(0, BASE_HEIGHT + 0.004, -DEPTH / 2 + 0.04);
   hinge.castShadow = true;
   laptop.add(hinge);
 
-  // Ports on both sides.
-  const portMaterial = new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 });
-  for (const side of [-1, 1]) {
-    for (const z of [-0.5, -0.15, 0.3]) {
-      const port = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.045, 0.14), portMaterial);
-      port.position.set((side * WIDTH) / 2, BASE_HEIGHT / 2, z);
-      laptop.add(port);
+  const vent = new THREE.Mesh(new THREE.BoxGeometry(KEYBOARD_WIDTH - 0.2, 0.002, 0.035), new THREE.MeshStandardMaterial({ color: 0x050506, roughness: 0.9 }));
+  vent.position.set(0, BASE_HEIGHT + 0.0008, -DEPTH / 2 + 0.2);
+  laptop.add(vent);
+
+  // Four rubber feet.
+  const footMaterial = new THREE.MeshStandardMaterial({ color: 0x0d0d0f, roughness: 0.85 });
+  for (const x of [-1.5, 1.5]) {
+    for (const z of [-1.0, 1.0]) {
+      const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.036, FEET, 20), footMaterial);
+      foot.position.set(x, -FEET / 2 + 0.002, z);
+      laptop.add(foot);
     }
   }
+
+  // Ports, in the order and spacing of Lenovo's diagram. Left side, from the back: power, HDMI, two USB-C
+  // (Thunderbolt 4), 3.5 mm jack. Right side, from the front: power button, SD reader, two USB-A.
+  const portMaterial = new THREE.MeshStandardMaterial({ color: 0x040405, roughness: 0.9 });
+  const side = (x: number, z: number, depth: number, height: number, round = false) => {
+    const geometry = round ? new THREE.CylinderGeometry(height / 2, height / 2, 0.012, 16) : new THREE.BoxGeometry(0.012, height, depth);
+    const port = new THREE.Mesh(geometry, portMaterial);
+    if (round) port.rotation.z = Math.PI / 2;
+    port.position.set(x, BASE_HEIGHT * 0.56, z);
+    laptop.add(port);
+  };
+  const fromBack = (fraction: number) => -DEPTH / 2 + fraction * DEPTH;
+  const fromFront = (fraction: number) => DEPTH / 2 - fraction * DEPTH;
+  const left = -WIDTH / 2 + 0.002;
+  const right = WIDTH / 2 - 0.002;
+  side(left, fromBack(0.115), 0.1, 0.04);
+  side(left, fromBack(0.225), 0.15, 0.04);
+  side(left, fromBack(0.31), 0.09, 0.025);
+  side(left, fromBack(0.39), 0.09, 0.025);
+  side(left, fromBack(0.46), 0, 0.034, true);
+  const button = new THREE.Mesh(new RoundedBoxGeometry(0.014, 0.022, 0.2, 2, 0.006), new THREE.MeshStandardMaterial({ color: 0x8b8d92, metalness: 1, roughness: 0.4 }));
+  button.position.set(right, BASE_HEIGHT * 0.56, fromFront(0.51));
+  laptop.add(button);
+  side(right, fromFront(0.65), 0.29, 0.016);
+  side(right, fromFront(0.78), 0.135, 0.055);
+  side(right, fromFront(0.88), 0.135, 0.055);
 
   const lid = createLid(screen);
   laptop.add(lid);
@@ -295,14 +432,15 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   // The lights never move, only the lid does, so the shadow is redrawn only when the lid moves.
   renderer.shadowMap.autoUpdate = false;
 
   const scene = new THREE.Scene();
   const environment = new THREE.PMREMGenerator(renderer);
-  scene.environment = environment.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.85;
+  scene.environment = environment.fromScene(createStudio(), 0.03).texture;
+  scene.environmentIntensity = 1;
+  environment.dispose();
 
   const key = new THREE.DirectionalLight(0xffffff, 2.4);
   key.position.set(2, 8, 3.5);
@@ -315,7 +453,7 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
   key.shadow.camera.bottom = -7;
   key.shadow.bias = -0.0004;
   key.shadow.radius = 4;
-  const rim = new THREE.DirectionalLight(0x8fb0ff, 1.6);
+  const rim = new THREE.DirectionalLight(0xe8eeff, 1.2);
   rim.position.set(-4, 3, -4);
   scene.add(key, rim);
 
@@ -329,7 +467,7 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
   scene.add(laptop);
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 60);
-  const focus = new THREE.Vector3(0, 0.85, 0);
+  const focus = new THREE.Vector3(0, 1.0, 0);
   let distance = 6;
 
   const resize = () => {
@@ -341,7 +479,7 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
     // Far enough back to fit the open laptop on any screen shape.
     const halfHeight = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     const halfWidth = halfHeight * camera.aspect;
-    distance = Math.max((WIDTH * 1.15) / (2 * halfWidth), (2.5 * 1.1) / (2 * halfHeight)) * 1.2 + 1;
+    distance = Math.max((WIDTH * 1.15) / (2 * halfWidth), (2.75 * 1.1) / (2 * halfHeight)) * 1.2 + 1;
   };
   new ResizeObserver(resize).observe(stage);
   resize();

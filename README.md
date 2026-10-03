@@ -57,7 +57,7 @@ vercel.json    cache headers
 
 ## Performance
 
-`src/scripts/lib/perf.ts` switches the 3D scenes to a cheaper mode on machines with 4 cores or fewer, 4 GB of memory or less, or reduced-motion on: pixel ratio 1, no antialiasing, smaller shadow maps and lighter physics. Other machines are capped at a 1.5x pixel ratio. The monitor desktop is plain DOM and CSS, so it costs almost nothing once it is open.
+`src/scripts/lib/perf.ts` switches the 3D scenes to a cheaper mode on machines with 4 cores or fewer, 4 GB of memory or less: pixel ratio 1, no antialiasing, smaller shadow maps and lighter physics. The browser's reduced-motion setting is ignored on purpose: every visitor gets the full animations. Other machines are capped at a 1.5x pixel ratio. The monitor desktop is plain DOM and CSS, so it costs almost nothing once it is open.
 
 Placeholder images load from Picsum. Real photos should be resized to about 1600px wide and compressed, since the loader waits for them.
 

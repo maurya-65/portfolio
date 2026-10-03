@@ -135,10 +135,6 @@ body { background: #050608; }
   .laptop-stage, .laptop-copy { grid-column: 1 / -1; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
-}
-
 /* olha renders some about text differently on a phone, decided in script; here it is decided in CSS. */
 .only-mobile { display: none; }
 @media (max-width: 1100px) {

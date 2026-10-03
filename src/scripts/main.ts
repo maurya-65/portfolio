@@ -9,20 +9,17 @@ const all = <T extends Element>(selector: string, root: ParentNode = document) =
 const one = <T extends Element>(selector: string, root: ParentNode = document) => root.querySelector<T>(selector);
 
 const FULL = "polygon(0 0, 100% 0, 100% 100%, 0 100%)";
-const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // Always start at the top on a reload (the inline script in <head> does the same before first paint).
 if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
 window.scrollTo(0, 0);
 
 // Smooth scrolling, driven by the GSAP ticker so ScrollTrigger stays in sync. olha uses Lenis with its defaults.
-let lenis: Lenis | null = null;
-if (!reduced) {
-  lenis = new Lenis();
-  lenis.on("scroll", ScrollTrigger.update);
-  gsap.ticker.add((time) => lenis!.raf(time * 1000));
-  gsap.ticker.lagSmoothing(0);
-}
+// Lenis would otherwise drop its smoothing and make scrollTo instant when the OS asks for reduced motion.
+const lenis = new Lenis({ respectReducedMotion: false });
+lenis.on("scroll", ScrollTrigger.update);
+gsap.ticker.add((time) => lenis.raf(time * 1000));
+gsap.ticker.lagSmoothing(0);
 
 // The clock in the footer (and the phone menu), for wherever the visitor is: "(GMT-3) 11:51".
 function startClock() {
@@ -46,15 +43,13 @@ function startClock() {
 // Scrolls to a section id the way olha's nav does: 0.8s, power3.out, stopping under the header.
 function scrollToSection(id: string) {
   if (id === "top") {
-    lenis ? lenis.scrollTo(0, { duration: 0.8, easing: (t) => 1 - Math.pow(1 - t, 3) }) : window.scrollTo({ top: 0 });
+    lenis.scrollTo(0, { duration: 0.8, easing: (t) => 1 - Math.pow(1 - t, 3) });
     return;
   }
   const target = document.getElementById(id);
   if (!target) return;
   const offset = -(one<HTMLElement>(".header")?.offsetHeight ?? 0);
-  lenis
-    ? lenis.scrollTo(target, { offset, duration: 0.8, easing: (t) => 1 - Math.pow(1 - t, 3) })
-    : window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY + offset });
+  lenis.scrollTo(target, { offset, duration: 0.8, easing: (t) => 1 - Math.pow(1 - t, 3) });
 }
 
 // The header: anchor links, the phone burger, and its colour while it sits over the dark sections.
@@ -180,11 +175,6 @@ function wireHero() {
   alignBased();
   window.addEventListener("resize", alignBased);
   document.fonts?.ready.then(alignBased);
-
-  if (reduced) {
-    document.body.classList.add("loaded");
-    return;
-  }
 
   const play = () => {
     const ease = "power4.out";
@@ -408,16 +398,9 @@ wireHeader();
 function runLoader(): Promise<void> {
   const cover = one<HTMLElement>("#loader");
   if (!cover) return Promise.resolve();
-  if (reduced) {
-    // No loader for visitors who asked for less motion, but the two 3D sections still have to start.
-    cover.remove();
-    import("./scenes/works.ts");
-    import("./scenes/laptop.ts");
-    return Promise.resolve();
-  }
   const counter = one<HTMLElement>("[data-loader-count]", cover)!;
   const label = one<HTMLElement>(".loader-counter", cover)!;
-  lenis?.stop();
+  lenis.stop();
   const ring = import("./scenes/loader-ring.ts").then((module) => module.createLoaderRing(cover)).catch(() => null);
 
   // A safety net only: a stuck asset must not hold the page forever.
@@ -467,7 +450,7 @@ function runLoader(): Promise<void> {
             onComplete: () => {
               scene?.destroy();
               cover.remove();
-              lenis?.start();
+              lenis.start();
               resolve();
             },
           });

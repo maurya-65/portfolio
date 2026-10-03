@@ -288,7 +288,6 @@ function createLaptop(screen: THREE.Texture) {
 
 function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
   const text = JSON.parse(stage.dataset.screen ?? "{}") as { title: string; subtitle: string };
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const canHover = window.matchMedia("(hover: hover)").matches;
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lite, alpha: true, powerPreference: "default" });
@@ -362,7 +361,7 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
     const open = hovered || pinned;
     gsap.to(lidState, {
       angle: open ? OPEN_ANGLE : 0,
-      duration: reduceMotion ? 0 : open ? 1.5 : 1.1,
+      duration: open ? 1.5 : 1.1,
       ease: open ? "power3.out" : "power2.inOut",
       overwrite: true,
     });
@@ -454,7 +453,7 @@ function init(stage: HTMLElement, canvas: HTMLCanvasElement) {
     view.elevation = damp(view.elevation, goal.elevation, 7, dt);
 
     // A slow sway keeps the open laptop feeling alive when nobody is dragging.
-    const sway = reduceMotion || dragging || lidState.angle < 0.5 ? 0 : Math.sin(time * 0.6) * 0.1;
+    const sway = dragging || lidState.angle < 0.5 ? 0 : Math.sin(time * 0.6) * 0.1;
     const azimuth = view.azimuth + sway;
 
     camera.position.set(
